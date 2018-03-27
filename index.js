@@ -1,4 +1,4 @@
-'use srict'
+'use strict'
 
 var reqSerializers = require('./lib/req')
 var resSerializers = require('./lib/res')

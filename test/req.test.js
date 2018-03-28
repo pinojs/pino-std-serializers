@@ -83,6 +83,24 @@ test('req.raw will be obtained in from input request raw property if input reque
   }
 })
 
+test('req.id defaults to undefined', function (t) {
+  t.plan(1)
+
+  var server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.tearDown(() => server.close())
+
+  function handler (req, res) {
+    var serialized = serializers.reqSerializer(req)
+    t.is(serialized.id, undefined)
+    res.end()
+  }
+})
+
 test('req.id has a non-function value', function (t) {
   t.plan(1)
 

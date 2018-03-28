@@ -56,7 +56,9 @@ The default `request` serializer. Returns and object:
   remotePort: Number,
   raw: Object // Non-enumerable, i.e. will not be in the output, original
               // request object. This is available for subsequent serializers
-              // to use.
+              // to use. In cases where the `request` input already has 
+              // a `raw` property this will be `request.raw` instead of the original 
+              // request 
 }
 ```
 

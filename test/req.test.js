@@ -63,6 +63,26 @@ test('req.raw is available', function (t) {
   }
 })
 
+test('req.raw will be obtained in from input request raw property if input request raw property is truthy', function (t) {
+  t.plan(2)
+
+  var server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.tearDown(() => server.close())
+
+  function handler (req, res) {
+    req.raw = { req: {foo: 'foo'}, res: {} }
+    var serialized = serializers.reqSerializer(req)
+    t.ok(serialized.raw)
+    t.is(serialized.raw.req.foo, 'foo')
+    res.end()
+  }
+})
+
 test('req.id has a non-function value', function (t) {
   t.plan(1)
 
@@ -77,6 +97,25 @@ test('req.id has a non-function value', function (t) {
   function handler (req, res) {
     var serialized = serializers.reqSerializer(req)
     t.is(typeof serialized.id === 'function', false)
+    res.end()
+  }
+})
+
+test('req.id will be obtained from input request info.id when input request id does not exist', function (t) {
+  t.plan(1)
+
+  var server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.tearDown(() => server.close())
+
+  function handler (req, res) {
+    req.info = {id: 'test'}
+    var serialized = serializers.reqSerializer(req)
+    t.is(serialized.id, 'test')
     res.end()
   }
 })
@@ -97,6 +136,25 @@ test('req.id has a non-function value with custom id function', function (t) {
     var serialized = serializers.reqSerializer(req)
     t.is(typeof serialized.id === 'function', false)
     t.is(serialized.id, 42)
+    res.end()
+  }
+})
+
+test('req.url will be obtained from input request url.path when input request url is an object', function (t) {
+  t.plan(1)
+
+  var server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.tearDown(() => server.close())
+
+  function handler (req, res) {
+    req.url = {path: '/test'}
+    var serialized = serializers.reqSerializer(req)
+    t.is(serialized.url, '/test')
     res.end()
   }
 })

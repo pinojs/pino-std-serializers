@@ -46,11 +46,13 @@ The default `request` serializer. Returns and object:
 
 ```js
 {
-  id: 'string', // Default is an empty string. Attach a synchronous function
-                // to the input `request` that returns an identifier to have
+  id: 'string', // Default is an empty string, unless there is an `id` property 
+                // already attached to the `request` object or to the `request.info`
+                // object. Attach a synchronous function
+                // to the `request.id` that returns an identifier to have
                 // the value filled.
   method: 'string',
-  url: 'string',
+  url: 'string', // the request pathname (as per req.url in core HTTP)
   headers: Object,
   remoteAddress: 'string',
   remotePort: Number,

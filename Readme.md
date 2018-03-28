@@ -46,7 +46,7 @@ The default `request` serializer. Returns and object:
 
 ```js
 {
-  id: 'string', // Default is an empty string, unless there is an `id` property 
+  id: 'string', // Defaults to `undefined`, unless there is an `id` property 
                 // already attached to the `request` object or to the `request.info`
                 // object. Attach a synchronous function
                 // to the `request.id` that returns an identifier to have

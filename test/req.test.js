@@ -201,3 +201,79 @@ test('can wrap request serializers', function (t) {
     res.end()
   }
 })
+
+test('req.remoteAddress will be obtained from request connect.remoteAddress as fallback', function (t) {
+  t.plan(1)
+
+  var server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.tearDown(() => server.close())
+
+  function handler (req, res) {
+    req.connection = {remoteAddress: 'http://localhost'}
+    var serialized = serializers.reqSerializer(req)
+    t.is(serialized.remoteAddress, 'http://localhost')
+    res.end()
+  }
+})
+
+test('req.remoteAddress will be obtained from request info.remoteAddress if available', function (t) {
+  t.plan(1)
+
+  var server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.tearDown(() => server.close())
+
+  function handler (req, res) {
+    req.info = {remoteAddress: 'http://localhost'}
+    var serialized = serializers.reqSerializer(req)
+    t.is(serialized.remoteAddress, 'http://localhost')
+    res.end()
+  }
+})
+
+test('req.remotePort will be obtained from request connect.remotePort as fallback', function (t) {
+  t.plan(1)
+
+  var server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.tearDown(() => server.close())
+
+  function handler (req, res) {
+    req.connection = {remotePort: 3000}
+    var serialized = serializers.reqSerializer(req)
+    t.is(serialized.remotePort, 3000)
+    res.end()
+  }
+})
+
+test('req.remotePort will be obtained from request info.remotePort if available', function (t) {
+  t.plan(1)
+
+  var server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.tearDown(() => server.close())
+
+  function handler (req, res) {
+    req.info = {remotePort: 3000}
+    var serialized = serializers.reqSerializer(req)
+    t.is(serialized.remotePort, 3000)
+    res.end()
+  }
+})

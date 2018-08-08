@@ -22,3 +22,48 @@ test('serializes Error objects with extra properties', function (t) {
   t.is(serialized.statusCode, 500)
   t.match(serialized.stack, /err\.test\.js:/)
 })
+
+test('serializes nested errors', function (t) {
+  t.plan(7)
+  var err = Error('foo')
+  err.inner = Error('bar')
+  var serialized = serializer(err)
+  t.is(serialized.type, 'Error')
+  t.is(serialized.message, 'foo')
+  t.match(serialized.stack, /err\.test\.js:/)
+  t.is(serialized.inner.type, 'Error')
+  t.is(serialized.inner.message, 'bar')
+  t.match(serialized.inner.stack, /Error: bar/)
+  t.match(serialized.inner.stack, /err\.test\.js:/)
+})
+
+test('prevents infinite recursion', function (t) {
+  t.plan(4)
+  var err = Error('foo')
+  err.inner = err
+  var serialized = serializer(err)
+  t.is(serialized.type, 'Error')
+  t.is(serialized.message, 'foo')
+  t.match(serialized.stack, /err\.test\.js:/)
+  t.notOk(serialized.inner)
+})
+
+test('cleans up infinite recursion tracking', function (t) {
+  t.plan(8)
+  var err = Error('foo')
+  var bar = Error('bar')
+  err.inner = bar
+  bar.inner = err
+
+  serializer(err)
+  var serialized = serializer(err)
+
+  t.is(serialized.type, 'Error')
+  t.is(serialized.message, 'foo')
+  t.match(serialized.stack, /err\.test\.js:/)
+  t.ok(serialized.inner)
+  t.is(serialized.inner.type, 'Error')
+  t.is(serialized.inner.message, 'bar')
+  t.match(serialized.inner.stack, /Error: bar/)
+  t.notOk(serialized.inner.inner)
+})

@@ -67,3 +67,15 @@ test('cleans up infinite recursion tracking', function (t) {
   t.match(serialized.inner.stack, /Error: bar/)
   t.notOk(serialized.inner.inner)
 })
+
+test('pass through anything that is not an Error', function (t) {
+  t.plan(3)
+
+  function check (a) {
+    t.is(serializer(a), a)
+  }
+
+  check('foo')
+  check({ hello: 'world' })
+  check([1, 2])
+})

@@ -54,7 +54,7 @@ test('can wrap response serializers', function (t) {
 
   t.tearDown(() => server.close())
 
-  var serailizer = wrapResponseSerializer(function (res) {
+  var serializer = wrapResponseSerializer(function (res) {
     t.ok(res.statusCode)
     t.is(res.statusCode, 200)
     delete res.statusCode
@@ -63,7 +63,7 @@ test('can wrap response serializers', function (t) {
 
   function handler (req, res) {
     res.statusCode = 200
-    var serialized = serailizer(res)
+    var serialized = serializer(res)
     t.notOk(serialized.statusCode)
     res.end()
   }

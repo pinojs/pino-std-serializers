@@ -70,7 +70,7 @@ The default `response` serializer. Returns an object:
 ```js
 {
   statusCode: Number,
-  header: Array, // The list of headers to be sent in the response.
+  headers: Object, // The headers to be sent in the response.
   raw: Object // Non-enumerable, i.e. will not be in the output, original
               // response object. This is available for subsequent serializers
               // to use.

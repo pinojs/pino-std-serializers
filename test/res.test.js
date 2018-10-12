@@ -68,3 +68,22 @@ test('can wrap response serializers', function (t) {
     res.end()
   }
 })
+
+test('res.headers is serialized', function (t) {
+  t.plan(1)
+
+  var server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.tearDown(() => server.close())
+
+  function handler (req, res) {
+    res.setHeader('x-custom', 'y')
+    var serialized = serializers.resSerializer(res)
+    t.is(serialized.headers['x-custom'], 'y')
+    res.end()
+  }
+})

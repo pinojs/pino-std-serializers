@@ -12,7 +12,10 @@ Serializes an `Error` like object. Returns an object:
 {
   type: 'string', // The name of the object's constructor.
   message: 'string', // The supplied error message.
-  stack: 'string' // The stack when the error was generated.
+  stack: 'string', // The stack when the error was generated.
+  raw: Error  // Non-enumerable, i.e. will not be in the output, original
+              // Error object. This is available for subsequent serializers
+              // to use.
 }
 ```
 
@@ -60,7 +63,7 @@ The default `request` serializer. Returns and object:
               // request object. This is available for subsequent serializers
               // to use. In cases where the `request` input already has 
               // a `raw` property this will be `request.raw` instead of the original 
-              // request 
+              // request
 }
 ```
 
@@ -77,19 +80,26 @@ The default `response` serializer. Returns an object:
 }
 ```
 
+### `exports.wrapErrorSerializer(customSerializer)`
+A utility method for wrapping the default error serializer. This allows
+custom serializers to work with the already serialized object.
+
+The `customSerializer` accepts one parameter — the newly serialized error
+object — and returns the new (or updated) error object.
+
 ### `exports.wrapRequestSerializer(customSerializer)`
 A utility method for wrapping the default request serializer. This allows
 custom serializers to work with the already serialized object.
 
-The `customSerializer` accepts one parameter: the newly serialized request
-object.
+The `customSerializer` accepts one parameter — the newly serialized request
+object — and returns the new (or updated) request object.
 
 ### `exports.wrapResponseSerializer(customSerializer)`
 A utility method for wrapping the default response serializer. This allows
 custom serializers to work with the already serialized object.
 
-The `customSerializer` accepts one parameter: the newly serialized response
-object.
+The `customSerializer` accepts one parameter — the newly serialized response
+object — and returns the new (or updated) response object.
 
 ## License
 

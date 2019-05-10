@@ -1,4 +1,4 @@
-# pino-std-serializers
+# pino-std-serializers&nbsp;&nbsp;[![Build Status](https://travis-ci.org/pinojs/pino-std-serializers.svg)](https://travis-ci.org/pinojs/pino-std-serializers)
 
 This module provides a set of standard object serializers for the
 [Pino](https://getpino.io) logger.
@@ -56,14 +56,15 @@ The default `request` serializer. Returns and object:
                 // the value filled.
   method: 'string',
   url: 'string', // the request pathname (as per req.url in core HTTP)
-  headers: Object,
+  headers: Object, // a reference to the `headers` object from the request
+                   // (as per req.headers in core HTTP)
   remoteAddress: 'string',
   remotePort: Number,
   raw: Object // Non-enumerable, i.e. will not be in the output, original
               // request object. This is available for subsequent serializers
               // to use. In cases where the `request` input already has 
-              // a `raw` property this will be `request.raw` instead of the original 
-              // request
+              // a `raw` property this will replace the original `request.raw`
+              // property
 }
 ```
 

@@ -177,6 +177,25 @@ test('req.url will be obtained from input request url.path when input request ur
   }
 })
 
+test('req.url will be obtained from input request originalUrl when available', function (t) {
+  t.plan(1)
+
+  var server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.tearDown(() => server.close())
+
+  function handler (req, res) {
+    req.originalUrl = '/test'
+    var serialized = serializers.reqSerializer(req)
+    t.is(serialized.url, '/test')
+    res.end()
+  }
+})
+
 test('can wrap request serializers', function (t) {
   t.plan(3)
 

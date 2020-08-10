@@ -158,7 +158,7 @@ test('req.id has a non-function value with custom id function', function (t) {
   }
 })
 
-test('req.url will be obtained from input request url.path when input request url is an object', function (t) {
+test('req.url will be obtained from input request req.path when input request url is an object', function (t) {
   t.plan(1)
 
   var server = http.createServer(handler)
@@ -170,7 +170,7 @@ test('req.url will be obtained from input request url.path when input request ur
   t.tearDown(() => server.close())
 
   function handler (req, res) {
-    req.url = {path: '/test'}
+    req.path = '/test'
     var serialized = serializers.reqSerializer(req)
     t.is(serialized.url, '/test')
     res.end()

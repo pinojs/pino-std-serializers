@@ -177,6 +177,62 @@ test('req.url will be obtained from input request req.path when input request ur
   }
 })
 
+test('req.url will be obtained from input request url.path when input request url is an object', function (t) {
+  t.plan(1)
+
+  var server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.tearDown(() => server.close())
+
+  function handler (req, res) {
+    req.url = { path: '/test' }
+    var serialized = serializers.reqSerializer(req)
+    t.is(serialized.url, '/test')
+    res.end()
+  }
+})
+
+test('req.url will be obtained from input request url when input request url is not an object', function (t) {
+  t.plan(1)
+
+  var server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.tearDown(() => server.close())
+
+  function handler (req, res) {
+    req.url = '/test'
+    var serialized = serializers.reqSerializer(req)
+    t.is(serialized.url, '/test')
+    res.end()
+  }
+})
+
+test('req.url will be empty when input request path and url are not defined', function (t) {
+  t.plan(1)
+
+  var server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.tearDown(() => server.close())
+
+  function handler (req, res) {
+    var serialized = serializers.reqSerializer(req)
+    t.is(serialized.url, '/')
+    res.end()
+  }
+})
+
 test('req.url will be obtained from input request originalUrl when available', function (t) {
   t.plan(1)
 

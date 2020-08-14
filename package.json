@@ -1,6 +1,6 @@
 {
   "name": "pino-std-serializers",
-  "version": "2.4.2",
+  "version": "2.5.0",
   "description": "A collection of standard object serializers for Pino",
   "main": "index.js",
   "scripts": {

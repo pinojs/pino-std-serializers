@@ -8,6 +8,16 @@ node_js:
   - "8"
   - "6"
 
+matrix:
+  fast_finish: true
+  include:
+    - node_js: '14'
+      env: TSSCRIPT=npm run test-types
+    - node_js: '12'
+      env: TSSCRIPT=npm run test-types
+    - node_js: '10'
+      env: TSSCRIPT=npm run test-types
+
 # before_install:
 #   - curl -L https://unpkg.com/@pnpm/self-installer | node
 # install:
@@ -16,7 +26,7 @@ node_js:
 script:
   - npm run lint-ci
   - npm run test-ci
-  - node_version=$(node -v); if [ ${node_version:1:1} > 9 ]; then npm run test-types; else echo "Skip TS tests"; fi
+  - ${TSSCRIPT:-echo "Skip TS tests"}
 
 notifications:
   email:

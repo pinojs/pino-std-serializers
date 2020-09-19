@@ -17,7 +17,7 @@
     "lint": "standard | snazzy",
     "lint-ci": "standard",
     "test": "tap --no-cov 'test/**/*.test.js'",
-    "test-ci": "test-types && tap --cov --coverage-report=text 'test/**/*.test.js'",
+    "test-ci": "npm run test-types && tap --cov --coverage-report=text 'test/**/*.test.js'",
     "test-types": "tsc && tsd"
   },
   "repository": {

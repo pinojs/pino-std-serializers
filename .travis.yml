@@ -12,7 +12,7 @@ matrix:
   fast_finish: true
   include:
     - node_js: '14'
-      env: TSSCRIPT=npm run test-types
+      env: TSSCRIPT="npm run test-types"
 
 # before_install:
 #   - curl -L https://unpkg.com/@pnpm/self-installer | node

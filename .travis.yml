@@ -13,10 +13,6 @@ matrix:
   include:
     - node_js: '14'
       env: TSSCRIPT=npm run test-types
-    - node_js: '12'
-      env: TSSCRIPT=npm run test-types
-    - node_js: '10'
-      env: TSSCRIPT=npm run test-types
 
 # before_install:
 #   - curl -L https://unpkg.com/@pnpm/self-installer | node

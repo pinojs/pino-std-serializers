@@ -8,18 +8,28 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [6.x, 8.x, 9.x, 10.x, 12.x, 14.x]
+        node-version: [6.x, 8.x, 9.x, 10.x, 12.x, 14.x, 15.x]
         os: [ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - name: Setup Node
+        uses: actions/setup-node@v1
         with:
           node-version: ${{matrix.node-version}}
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install Dependencies
+        run: npm install
+        env:
+          NODE_ENV: development
+      - name: Lint-CI
+        run: npm run lint-ci
+      - name: Test-CI
+        run: npm run test-ci
 
-      - run: npm install
-      - run: npm run lint-ci
-      - run: npm run test-ci
 
   automerge:
     needs: build

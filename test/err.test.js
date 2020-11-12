@@ -76,6 +76,32 @@ test('err.raw is available', function (t) {
   t.equal(serialized.raw, err)
 })
 
+test('redefined err.constructor doesnt crash serializer', function (t) {
+  t.plan(8)
+
+  function check (a, name) {
+    t.is(a.type, name)
+    t.is(a.message, 'foo')
+  }
+
+  const err1 = TypeError('foo')
+  err1.constructor = '10'
+
+  const err2 = TypeError('foo')
+  err2.constructor = undefined
+
+  const err3 = Error('foo')
+  err3.constructor = null
+
+  const err4 = Error('foo')
+  err4.constructor = 10
+
+  check(serializer(err1), 'TypeError')
+  check(serializer(err2), 'TypeError')
+  check(serializer(err3), 'Error')
+  check(serializer(err4), 'Error')
+})
+
 test('pass through anything that is not an Error', function (t) {
   t.plan(3)
 

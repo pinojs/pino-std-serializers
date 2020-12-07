@@ -1,4 +1,4 @@
-# pino-std-serializers&nbsp;&nbsp;[![Build Status](https://travis-ci.org/pinojs/pino-std-serializers.svg)](https://travis-ci.org/pinojs/pino-std-serializers)
+# pino-std-serializers&nbsp;&nbsp;[![CI](https://github.com/pinojs/pino-std-serializers/workflows/CI/badge.svg)](https://github.com/pinojs/pino-std-serializers/actions?query=workflow%3ACI)
 
 This module provides a set of standard object serializers for the
 [Pino](https://getpino.io) logger.

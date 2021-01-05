@@ -277,7 +277,7 @@ test('can wrap request serializers', function (t) {
   }
 })
 
-test('req.remoteAddress will be obtained from request connect.remoteAddress as fallback', function (t) {
+test('req.remoteAddress will be obtained from request socket.remoteAddress as fallback', function (t) {
   t.plan(1)
 
   const server = http.createServer(handler)
@@ -289,7 +289,7 @@ test('req.remoteAddress will be obtained from request connect.remoteAddress as f
   t.tearDown(() => server.close())
 
   function handler (req, res) {
-    req.connection = { remoteAddress: 'http://localhost' }
+    req.socket = { remoteAddress: 'http://localhost' }
     const serialized = serializers.reqSerializer(req)
     t.is(serialized.remoteAddress, 'http://localhost')
     res.end()
@@ -315,7 +315,7 @@ test('req.remoteAddress will be obtained from request info.remoteAddress if avai
   }
 })
 
-test('req.remotePort will be obtained from request connect.remotePort as fallback', function (t) {
+test('req.remotePort will be obtained from request socket.remotePort as fallback', function (t) {
   t.plan(1)
 
   const server = http.createServer(handler)
@@ -327,7 +327,7 @@ test('req.remotePort will be obtained from request connect.remotePort as fallbac
   t.tearDown(() => server.close())
 
   function handler (req, res) {
-    req.connection = { remotePort: 3000 }
+    req.socket = { remotePort: 3000 }
     const serialized = serializers.reqSerializer(req)
     t.is(serialized.remotePort, 3000)
     res.end()

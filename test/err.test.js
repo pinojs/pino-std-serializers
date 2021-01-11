@@ -24,6 +24,14 @@ test('serializes Error objects with extra properties', function (t) {
   t.match(serialized.stack, /err\.test\.js:/)
 })
 
+test('serializes Error objects with subclass "type"', function (t) {
+  t.plan(1)
+  class MyError extends Error {}
+  const err = new MyError('foo')
+  const serialized = serializer(err)
+  t.is(serialized.type, 'MyError')
+})
+
 test('serializes nested errors', function (t) {
   t.plan(7)
   const err = Error('foo')
@@ -77,7 +85,7 @@ test('err.raw is available', function (t) {
 })
 
 test('redefined err.constructor doesnt crash serializer', function (t) {
-  t.plan(8)
+  t.plan(10)
 
   function check (a, name) {
     t.is(a.type, name)
@@ -96,10 +104,17 @@ test('redefined err.constructor doesnt crash serializer', function (t) {
   const err4 = Error('foo')
   err4.constructor = 10
 
+  class MyError extends Error {}
+  const err5 = new MyError('foo')
+  err5.constructor = undefined
+
   check(serializer(err1), 'TypeError')
   check(serializer(err2), 'TypeError')
   check(serializer(err3), 'Error')
   check(serializer(err4), 'Error')
+  // We do not expect 'MyError' because err5.constructor has been blown away.
+  // `err5.name` is 'Error' from the base class prototype.
+  check(serializer(err5), 'Error')
 })
 
 test('pass through anything that is not an Error', function (t) {

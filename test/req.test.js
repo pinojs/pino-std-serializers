@@ -352,3 +352,43 @@ test('req.remotePort will be obtained from request info.remotePort if available'
     res.end()
   }
 })
+
+test('req.query is available', function (t) {
+  t.plan(1)
+
+  const server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.tearDown(() => server.close())
+
+  function handler (req, res) {
+    req.originalUrl = '/test'
+    req.query = '/foo?bar=foobar&bar=foo'
+    const serialized = serializers.reqSerializer(req)
+    t.is(serialized.query, '/foo?bar=foobar&bar=foo')
+    res.end()
+  }
+})
+
+test('req.params is available', function (t) {
+  t.plan(1)
+
+  const server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.tearDown(() => server.close())
+
+  function handler (req, res) {
+    req.originalUrl = '/test'
+    req.params = '/foo/bar'
+    const serialized = serializers.reqSerializer(req)
+    t.is(serialized.params, '/foo/bar')
+    res.end()
+  }
+})

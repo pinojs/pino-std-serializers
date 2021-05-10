@@ -1,14 +1,22 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    paths-ignore:
+        - 'docs/**'
+        - '*.md'
+  pull_request:
+    paths-ignore:
+        - 'docs/**'
+        - '*.md'
 
 jobs:
-  build-lint-test:
-    runs-on: [ubuntu-latest]
+  build:
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x, 15.x, 16.x]
+        node-version: [10, 12, 14, 15, 16]
 
     steps:
       - uses: actions/checkout@v2
@@ -26,10 +34,9 @@ jobs:
         run: npm run test-ci
 
   automerge:
-    needs: build-lint-test
+    needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: fastify/github-action-merge-dependabot@v1
-        if: ${{ github.actor == 'dependabot[bot]' && github.event_name == 'pull_request' }}
+      - uses: fastify/github-action-merge-dependabot@v2.0.0
         with:
-          github-token: ${{secrets.github_token}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}

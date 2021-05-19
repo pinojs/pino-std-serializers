@@ -30,6 +30,8 @@ jobs:
           NODE_ENV: development
       - name: Lint-CI
         run: npm run lint-ci
+      - name: Test-Types
+        run: npm run test-types
       - name: Test-CI
         run: npm run test-ci
 

@@ -1,8 +1,8 @@
 'use strict'
 
-var errSerializer = require('./lib/err')
-var reqSerializers = require('./lib/req')
-var resSerializers = require('./lib/res')
+const errSerializer = require('./lib/err')
+const reqSerializers = require('./lib/req')
+const resSerializers = require('./lib/res')
 
 module.exports = {
   err: errSerializer,

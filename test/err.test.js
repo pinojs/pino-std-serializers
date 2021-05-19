@@ -1,12 +1,12 @@
 'use strict'
 
-var test = require('tap').test
+const test = require('tap').test
 const serializer = require('../lib/err')
-var wrapErrorSerializer = require('../').wrapErrorSerializer
+const wrapErrorSerializer = require('../').wrapErrorSerializer
 
 test('serializes Error objects', function (t) {
   t.plan(3)
-  var serialized = serializer(Error('foo'))
+  const serialized = serializer(Error('foo'))
   t.is(serialized.type, 'Error')
   t.is(serialized.message, 'foo')
   t.match(serialized.stack, /err\.test\.js:/)
@@ -14,9 +14,9 @@ test('serializes Error objects', function (t) {
 
 test('serializes Error objects with extra properties', function (t) {
   t.plan(5)
-  var err = Error('foo')
+  const err = Error('foo')
   err.statusCode = 500
-  var serialized = serializer(err)
+  const serialized = serializer(err)
   t.is(serialized.type, 'Error')
   t.is(serialized.message, 'foo')
   t.ok(serialized.statusCode)
@@ -24,11 +24,19 @@ test('serializes Error objects with extra properties', function (t) {
   t.match(serialized.stack, /err\.test\.js:/)
 })
 
+test('serializes Error objects with subclass "type"', function (t) {
+  t.plan(1)
+  class MyError extends Error {}
+  const err = new MyError('foo')
+  const serialized = serializer(err)
+  t.is(serialized.type, 'MyError')
+})
+
 test('serializes nested errors', function (t) {
   t.plan(7)
-  var err = Error('foo')
+  const err = Error('foo')
   err.inner = Error('bar')
-  var serialized = serializer(err)
+  const serialized = serializer(err)
   t.is(serialized.type, 'Error')
   t.is(serialized.message, 'foo')
   t.match(serialized.stack, /err\.test\.js:/)
@@ -40,9 +48,9 @@ test('serializes nested errors', function (t) {
 
 test('prevents infinite recursion', function (t) {
   t.plan(4)
-  var err = Error('foo')
+  const err = Error('foo')
   err.inner = err
-  var serialized = serializer(err)
+  const serialized = serializer(err)
   t.is(serialized.type, 'Error')
   t.is(serialized.message, 'foo')
   t.match(serialized.stack, /err\.test\.js:/)
@@ -51,13 +59,13 @@ test('prevents infinite recursion', function (t) {
 
 test('cleans up infinite recursion tracking', function (t) {
   t.plan(8)
-  var err = Error('foo')
-  var bar = Error('bar')
+  const err = Error('foo')
+  const bar = Error('bar')
   err.inner = bar
   bar.inner = err
 
   serializer(err)
-  var serialized = serializer(err)
+  const serialized = serializer(err)
 
   t.is(serialized.type, 'Error')
   t.is(serialized.message, 'foo')
@@ -76,6 +84,39 @@ test('err.raw is available', function (t) {
   t.equal(serialized.raw, err)
 })
 
+test('redefined err.constructor doesnt crash serializer', function (t) {
+  t.plan(10)
+
+  function check (a, name) {
+    t.is(a.type, name)
+    t.is(a.message, 'foo')
+  }
+
+  const err1 = TypeError('foo')
+  err1.constructor = '10'
+
+  const err2 = TypeError('foo')
+  err2.constructor = undefined
+
+  const err3 = Error('foo')
+  err3.constructor = null
+
+  const err4 = Error('foo')
+  err4.constructor = 10
+
+  class MyError extends Error {}
+  const err5 = new MyError('foo')
+  err5.constructor = undefined
+
+  check(serializer(err1), 'TypeError')
+  check(serializer(err2), 'TypeError')
+  check(serializer(err3), 'Error')
+  check(serializer(err4), 'Error')
+  // We do not expect 'MyError' because err5.constructor has been blown away.
+  // `err5.name` is 'Error' from the base class prototype.
+  check(serializer(err5), 'Error')
+})
+
 test('pass through anything that is not an Error', function (t) {
   t.plan(3)
 
@@ -90,14 +131,14 @@ test('pass through anything that is not an Error', function (t) {
 
 test('can wrap err serializers', function (t) {
   t.plan(5)
-  var err = Error('foo')
+  const err = Error('foo')
   err.foo = 'foo'
-  var serializer = wrapErrorSerializer(function (err) {
+  const serializer = wrapErrorSerializer(function (err) {
     delete err.foo
     err.bar = 'bar'
     return err
   })
-  var serialized = serializer(err)
+  const serialized = serializer(err)
   t.is(serialized.type, 'Error')
   t.is(serialized.message, 'foo')
   t.match(serialized.stack, /err\.test\.js:/)

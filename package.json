@@ -5,14 +5,6 @@
   "main": "index.js",
   "type": "commonjs",
   "types": "index.d.ts",
-  "files": [
-    "lib",
-    "test",
-    "index.d.ts",
-    "index.js",
-    "LICENSE",
-    "Readme.md"
-  ],
   "scripts": {
     "lint": "standard | snazzy",
     "lint-ci": "standard",

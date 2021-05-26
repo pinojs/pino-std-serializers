@@ -28,7 +28,8 @@
   "homepage": "https://github.com/pinojs/pino-std-serializers#readme",
   "precommit": [
     "lint",
-    "test"
+    "test",
+    "test-types"
   ],
   "devDependencies": {
     "@types/node": "^15.3.0",

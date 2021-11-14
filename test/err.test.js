@@ -46,6 +46,38 @@ test('serializes nested errors', function (t) {
   t.match(serialized.inner.stack, /err\.test\.js:/)
 })
 
+test('serializes error causes', function (t) {
+  t.plan(6)
+  const err = Error('foo')
+  err.cause = Error('bar')
+  err.cause.cause = Error('abc')
+  const serialized = serializer(err)
+  t.is(serialized.type, 'Error')
+  t.is(serialized.message, 'foo: bar: abc')
+  t.match(serialized.stack, /err\.test\.js:/)
+  t.match(serialized.stack, /Error: foo/)
+  t.match(serialized.stack, /Error: bar/)
+  t.match(serialized.stack, /Error: abc/)
+})
+
+test('serializes error causes with VError support', function (t) {
+  t.plan(6)
+  // Fake VError-style setyp
+  const err = Error('foo: bar')
+  err.cause = () => {
+    const err = Error('bar')
+    err.cause = Error('abc')
+    return err
+  }
+  const serialized = serializer(err)
+  t.is(serialized.type, 'Error')
+  t.is(serialized.message, 'foo: bar: abc')
+  t.match(serialized.stack, /err\.test\.js:/)
+  t.match(serialized.stack, /Error: foo/)
+  t.match(serialized.stack, /Error: bar/)
+  t.match(serialized.stack, /Error: abc/)
+})
+
 test('prevents infinite recursion', function (t) {
   t.plan(4)
   const err = Error('foo')

@@ -42,5 +42,8 @@
   },
   "tsd": {
     "directory": "test/types"
+  },
+  "dependencies": {
+    "pony-cause": "^1.1.0"
   }
 }

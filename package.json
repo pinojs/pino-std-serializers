@@ -9,7 +9,7 @@
     "lint": "standard | snazzy",
     "lint-ci": "standard",
     "test": "tap --no-cov 'test/**/*.test.js'",
-    "test-ci": "tap --cov --coverage-report=text 'test/**/*.test.js'",
+    "test-ci": "tap --cov --no-check-coverage --coverage-report=text 'test/**/*.test.js'",
     "test-types": "tsc && tsd"
   },
   "repository": {

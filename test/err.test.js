@@ -1,8 +1,28 @@
 'use strict'
 
-const test = require('tap').test
+const { test, skip } = require('tap')
 const serializer = require('../lib/err')
 const wrapErrorSerializer = require('../').wrapErrorSerializer
+
+test('serializes aggregate errors', function (t) {
+  const major = Number(process.versions.node.split('.')[0])
+  if (major < 15) return skip()
+
+  t.plan(8)
+  const foo = new Error('foo')
+  const bar = new Error('bar')
+  const aggregate = new AggregateError([foo, bar], 'aggregated message') // eslint-disable-line no-undef
+
+  const serialized = serializer(aggregate)
+  t.equal(serialized.type, 'AggregateError')
+  t.equal(serialized.message, 'aggregated message')
+  t.equal(serialized.aggregateErrors.length, 2)
+  t.equal(serialized.aggregateErrors[0].message, 'foo')
+  t.equal(serialized.aggregateErrors[1].message, 'bar')
+  t.match(serialized.aggregateErrors[0].stack, /^Error: foo/)
+  t.match(serialized.aggregateErrors[1].stack, /^Error: bar/)
+  t.match(serialized.stack, /err\.test\.js:/)
+})
 
 test('serializes Error objects', function (t) {
   t.plan(3)

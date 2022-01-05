@@ -1,13 +1,11 @@
 'use strict'
 
-const { test, skip } = require('tap')
+const test = require('tap').test
 const serializer = require('../lib/err')
 const wrapErrorSerializer = require('../').wrapErrorSerializer
+const hasAggregateError = !!global.AggregateError
 
-test('serializes aggregate errors', function (t) {
-  const major = Number(process.versions.node.split('.')[0])
-  if (major < 15) return skip()
-
+test('serializes aggregate errors', { skip: !hasAggregateError }, function (t) {
   t.plan(8)
   const foo = new Error('foo')
   const bar = new Error('bar')

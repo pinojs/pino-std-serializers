@@ -194,3 +194,19 @@ test('serializes aggregate errors', { skip: !global.AggregateError }, function (
   t.match(serialized.aggregateErrors[1].stack, /^Error: bar/)
   t.match(serialized.stack, /err\.test\.js:/)
 })
+
+test('avoid infinite recursion in aggregate errors', { skip: !global.AggregateError }, function (t) {
+  t.plan(7)
+  const foo = new Error('foo')
+  const agg1 = new AggregateError([foo], 'aggregated message') // eslint-disable-line no-undef
+  agg1.inner = agg1
+
+  const serialized = serializer(agg1)
+  t.equal(serialized.type, 'AggregateError')
+  t.equal(serialized.message, 'aggregated message')
+  t.equal(serialized.aggregateErrors.length, 1)
+  t.equal(serialized.aggregateErrors[0].message, 'foo')
+  t.match(serialized.aggregateErrors[0].stack, /^Error: foo/)
+  t.match(serialized.stack, /err\.test\.js:/)
+  t.notOk(serialized.inner)
+})

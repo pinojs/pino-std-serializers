@@ -7,8 +7,8 @@ const wrapErrorSerializer = require('../').wrapErrorSerializer
 test('serializes Error objects', function (t) {
   t.plan(3)
   const serialized = serializer(Error('foo'))
-  t.is(serialized.type, 'Error')
-  t.is(serialized.message, 'foo')
+  t.equal(serialized.type, 'Error')
+  t.equal(serialized.message, 'foo')
   t.match(serialized.stack, /err\.test\.js:/)
 })
 
@@ -17,10 +17,10 @@ test('serializes Error objects with extra properties', function (t) {
   const err = Error('foo')
   err.statusCode = 500
   const serialized = serializer(err)
-  t.is(serialized.type, 'Error')
-  t.is(serialized.message, 'foo')
+  t.equal(serialized.type, 'Error')
+  t.equal(serialized.message, 'foo')
   t.ok(serialized.statusCode)
-  t.is(serialized.statusCode, 500)
+  t.equal(serialized.statusCode, 500)
   t.match(serialized.stack, /err\.test\.js:/)
 })
 
@@ -29,7 +29,7 @@ test('serializes Error objects with subclass "type"', function (t) {
   class MyError extends Error {}
   const err = new MyError('foo')
   const serialized = serializer(err)
-  t.is(serialized.type, 'MyError')
+  t.equal(serialized.type, 'MyError')
 })
 
 test('serializes nested errors', function (t) {
@@ -37,11 +37,11 @@ test('serializes nested errors', function (t) {
   const err = Error('foo')
   err.inner = Error('bar')
   const serialized = serializer(err)
-  t.is(serialized.type, 'Error')
-  t.is(serialized.message, 'foo')
+  t.equal(serialized.type, 'Error')
+  t.equal(serialized.message, 'foo')
   t.match(serialized.stack, /err\.test\.js:/)
-  t.is(serialized.inner.type, 'Error')
-  t.is(serialized.inner.message, 'bar')
+  t.equal(serialized.inner.type, 'Error')
+  t.equal(serialized.inner.message, 'bar')
   t.match(serialized.inner.stack, /Error: bar/)
   t.match(serialized.inner.stack, /err\.test\.js:/)
 })
@@ -52,8 +52,8 @@ test('serializes error causes', function (t) {
   err.cause = Error('bar')
   err.cause.cause = Error('abc')
   const serialized = serializer(err)
-  t.is(serialized.type, 'Error')
-  t.is(serialized.message, 'foo: bar: abc')
+  t.equal(serialized.type, 'Error')
+  t.equal(serialized.message, 'foo: bar: abc')
   t.match(serialized.stack, /err\.test\.js:/)
   t.match(serialized.stack, /Error: foo/)
   t.match(serialized.stack, /Error: bar/)
@@ -70,8 +70,8 @@ test('serializes error causes with VError support', function (t) {
     return err
   }
   const serialized = serializer(err)
-  t.is(serialized.type, 'Error')
-  t.is(serialized.message, 'foo: bar: abc')
+  t.equal(serialized.type, 'Error')
+  t.equal(serialized.message, 'foo: bar: abc')
   t.match(serialized.stack, /err\.test\.js:/)
   t.match(serialized.stack, /Error: foo/)
   t.match(serialized.stack, /Error: bar/)
@@ -83,8 +83,8 @@ test('prevents infinite recursion', function (t) {
   const err = Error('foo')
   err.inner = err
   const serialized = serializer(err)
-  t.is(serialized.type, 'Error')
-  t.is(serialized.message, 'foo')
+  t.equal(serialized.type, 'Error')
+  t.equal(serialized.message, 'foo')
   t.match(serialized.stack, /err\.test\.js:/)
   t.notOk(serialized.inner)
 })
@@ -99,12 +99,12 @@ test('cleans up infinite recursion tracking', function (t) {
   serializer(err)
   const serialized = serializer(err)
 
-  t.is(serialized.type, 'Error')
-  t.is(serialized.message, 'foo')
+  t.equal(serialized.type, 'Error')
+  t.equal(serialized.message, 'foo')
   t.match(serialized.stack, /err\.test\.js:/)
   t.ok(serialized.inner)
-  t.is(serialized.inner.type, 'Error')
-  t.is(serialized.inner.message, 'bar')
+  t.equal(serialized.inner.type, 'Error')
+  t.equal(serialized.inner.message, 'bar')
   t.match(serialized.inner.stack, /Error: bar/)
   t.notOk(serialized.inner.inner)
 })
@@ -120,8 +120,8 @@ test('redefined err.constructor doesnt crash serializer', function (t) {
   t.plan(10)
 
   function check (a, name) {
-    t.is(a.type, name)
-    t.is(a.message, 'foo')
+    t.equal(a.type, name)
+    t.equal(a.message, 'foo')
   }
 
   const err1 = TypeError('foo')
@@ -153,7 +153,7 @@ test('pass through anything that is not an Error', function (t) {
   t.plan(3)
 
   function check (a) {
-    t.is(serializer(a), a)
+    t.equal(serializer(a), a)
   }
 
   check('foo')
@@ -171,11 +171,11 @@ test('can wrap err serializers', function (t) {
     return err
   })
   const serialized = serializer(err)
-  t.is(serialized.type, 'Error')
-  t.is(serialized.message, 'foo')
+  t.equal(serialized.type, 'Error')
+  t.equal(serialized.message, 'foo')
   t.match(serialized.stack, /err\.test\.js:/)
   t.notOk(serialized.foo)
-  t.is(serialized.bar, 'bar')
+  t.equal(serialized.bar, 'bar')
 })
 
 test('serializes aggregate errors', { skip: !global.AggregateError }, function (t) {

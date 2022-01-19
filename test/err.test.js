@@ -177,3 +177,20 @@ test('can wrap err serializers', function (t) {
   t.notOk(serialized.foo)
   t.is(serialized.bar, 'bar')
 })
+
+test('serializes aggregate errors', { skip: !global.AggregateError }, function (t) {
+  t.plan(8)
+  const foo = new Error('foo')
+  const bar = new Error('bar')
+  const aggregate = new AggregateError([foo, bar], 'aggregated message') // eslint-disable-line no-undef
+
+  const serialized = serializer(aggregate)
+  t.equal(serialized.type, 'AggregateError')
+  t.equal(serialized.message, 'aggregated message')
+  t.equal(serialized.aggregateErrors.length, 2)
+  t.equal(serialized.aggregateErrors[0].message, 'foo')
+  t.equal(serialized.aggregateErrors[1].message, 'bar')
+  t.match(serialized.aggregateErrors[0].stack, /^Error: foo/)
+  t.match(serialized.aggregateErrors[1].stack, /^Error: bar/)
+  t.match(serialized.stack, /err\.test\.js:/)
+})

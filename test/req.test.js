@@ -274,6 +274,25 @@ test('req.url will be obtained from input request url when req path is a functio
   }
 })
 
+test('req.url being undefined does not throw an error', function (t) {
+  t.plan(1)
+
+  const server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.teardown(() => server.close())
+
+  function handler (req, res) {
+    req.url = undefined
+    const serialized = serializers.reqSerializer(req)
+    t.equal(serialized.url, undefined)
+    res.end()
+  }
+})
+
 test('can wrap request serializers', function (t) {
   t.plan(3)
 

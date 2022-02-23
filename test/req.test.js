@@ -252,7 +252,7 @@ test('req.url will be obtained from input request originalUrl when available', f
   }
 })
 
-test('req.url will be obtained from input request path() when a function', function (t) {
+test('req.url will be obtained from input request url when req path is a function', function (t) {
   t.plan(1)
 
   const server = http.createServer(handler)
@@ -265,8 +265,9 @@ test('req.url will be obtained from input request path() when a function', funct
 
   function handler (req, res) {
     req.path = function () {
-      return '/test'
+      throw new Error('unexpected invocation')
     }
+    req.url = '/test'
     const serialized = serializers.reqSerializer(req)
     t.equal(serialized.url, '/test')
     res.end()

@@ -406,7 +406,6 @@ test('req.query is available', function (t) {
   t.teardown(() => server.close())
 
   function handler (req, res) {
-    req.originalUrl = '/test'
     req.query = '/foo?bar=foobar&bar=foo'
     const serialized = serializers.reqSerializer(req)
     t.equal(serialized.query, '/foo?bar=foobar&bar=foo')
@@ -426,7 +425,6 @@ test('req.params is available', function (t) {
   t.teardown(() => server.close())
 
   function handler (req, res) {
-    req.originalUrl = '/test'
     req.params = '/foo/bar'
     const serialized = serializers.reqSerializer(req)
     t.equal(serialized.params, '/foo/bar')

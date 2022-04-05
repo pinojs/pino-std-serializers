@@ -56,6 +56,8 @@ The default `request` serializer. Returns and object:
                 // the value filled.
   method: 'string',
   url: 'string', // the request pathname (as per req.url in core HTTP)
+  query: 'object', // the request query (as per req.query in express or hapi)
+  params: 'object', // the request params (as per req.params in express or hapi)
   headers: Object, // a reference to the `headers` object from the request
                    // (as per req.headers in core HTTP)
   remoteAddress: 'string',

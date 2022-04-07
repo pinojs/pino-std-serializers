@@ -116,17 +116,17 @@ export function wrapErrorSerializer(customSerializer: CustomErrorSerializer): (e
 export type CustomRequestSerializer = (req: SerializedRequest) => Record<string, any>;
 
 /**
- * A utility method for wrapping the default response serializer.
+ * A utility method for wrapping the default request serializer.
  * This allows custom serializers to work with the already serialized object.
- * The customSerializer accepts one parameter — the newly serialized response object — and returns the new (or updated) response object.
+ * The customSerializer accepts one parameter — the newly serialized request object — and returns the new (or updated) request object.
  */
 export function wrapRequestSerializer(customSerializer: CustomRequestSerializer): (req: IncomingMessage) => Record<string, any>;
 
 export type CustomResponseSerializer = (res: SerializedResponse) => Record<string, any>;
 
 /**
- * A utility method for wrapping the default request serializer.
+ * A utility method for wrapping the default response serializer.
  * This allows custom serializers to work with the already serialized object.
- * The customSerializer accepts one parameter — the newly serialized request object — and returns the new (or updated) request object.
+ * The customSerializer accepts one parameter — the newly serialized response object — and returns the new (or updated) response object.
  */
 export function wrapResponseSerializer(customSerializer: CustomResponseSerializer): (res: ServerResponse) => Record<string, any>;

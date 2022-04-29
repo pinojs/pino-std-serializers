@@ -13,6 +13,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
 
     strategy:
       fail-fast: false
@@ -20,9 +23,9 @@ jobs:
         node-version: [10, 12, 14, 15, 16]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{matrix.node-version}}
       - name: Install Dependencies
@@ -39,7 +42,10 @@ jobs:
   automerge:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
     steps:
-      - uses: fastify/github-action-merge-dependabot@v3.0.2
+      - uses: fastify/github-action-merge-dependabot@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

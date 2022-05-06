@@ -45,7 +45,7 @@ Used internall by Pino for general request logging. Returns an object:
 Where `req` is the `request` as serialized by the standard request serializer.
 
 ### `exports.req(request)`
-The default `request` serializer. Returns and object:
+The default `request` serializer. Returns an object:
 
 ```js
 {

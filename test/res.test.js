@@ -64,10 +64,10 @@ test('can wrap response serializers', function (t) {
   })
 
   function handler (req, res) {
+    res.end()
     res.statusCode = 200
     const serialized = serializer(res)
     t.notOk(serialized.statusCode)
-    res.end()
   }
 })
 
@@ -86,6 +86,24 @@ test('res.headers is serialized', function (t) {
     res.setHeader('x-custom', 'y')
     const serialized = serializers.resSerializer(res)
     t.equal(serialized.headers['x-custom'], 'y')
+    res.end()
+  }
+})
+
+test('res.statusCode is null before headers are flushed', function (t) {
+  t.plan(1)
+
+  const server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.teardown(() => server.close())
+
+  function handler (req, res) {
+    const serialized = serializers.resSerializer(res)
+    t.equal(serialized.statusCode, null)
     res.end()
   }
 })

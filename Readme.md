@@ -45,7 +45,7 @@ Used internall by Pino for general request logging. Returns an object:
 Where `req` is the `request` as serialized by the standard request serializer.
 
 ### `exports.req(request)`
-The default `request` serializer. Returns and object:
+The default `request` serializer. Returns an object:
 
 ```js
 {
@@ -75,7 +75,7 @@ The default `response` serializer. Returns an object:
 
 ```js
 {
-  statusCode: Number,
+  statusCode: Number, // Response status code, will be null before headers are flushed
   headers: Object, // The headers to be sent in the response.
   raw: Object // Non-enumerable, i.e. will not be in the output, original
               // response object. This is available for subsequent serializers

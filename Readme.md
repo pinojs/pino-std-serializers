@@ -75,7 +75,7 @@ The default `response` serializer. Returns an object:
 
 ```js
 {
-  statusCode: Number,
+  statusCode: Number, // Response status code, will be null before headers are flushed
   headers: Object, // The headers to be sent in the response.
   raw: Object // Non-enumerable, i.e. will not be in the output, original
               // response object. This is available for subsequent serializers

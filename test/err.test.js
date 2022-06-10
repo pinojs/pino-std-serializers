@@ -198,8 +198,8 @@ test('serializes aggregate errors', { skip: !global.AggregateError }, function (
 test('serializes causes', function (t) {
   t.plan(7)
 
-  const foo = new Error('foo')
-  const bar = new Error('bar', { cause: foo })
+  const bar = new Error('bar')
+  bar.cause = new Error('foo')
 
   const serialized = serializer(bar)
 

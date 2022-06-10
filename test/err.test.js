@@ -62,7 +62,7 @@ test('serializes error causes', function (t) {
 
 test('serializes error causes with VError support', function (t) {
   t.plan(6)
-  // Fake VError-style setyp
+  // Fake VError-style setup
   const err = Error('foo: bar')
   err.cause = () => {
     const err = Error('bar')

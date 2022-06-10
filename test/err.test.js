@@ -218,3 +218,31 @@ test('serializes causes', function (t) {
   t.equal(serialized.cause.cause.message, 'baz')
   t.match(serialized.cause.cause.stack, /err\.test\.js:/)
 })
+
+test('serializes causes with VError support', function (t) {
+  t.plan(11)
+
+  // Fake VError-style setup
+  const err = Error('foo: bar')
+  err.cause = () => {
+    const err = Error('bar')
+    err.cause = Error('abc')
+    return err
+  }
+
+  const serialized = serializer(err)
+
+  t.equal(serialized.type, 'Error')
+  t.equal(serialized.message, 'foo: bar: abc') // message serialization already walks cause-chain
+  t.match(serialized.stack, /err\.test\.js:/)
+
+  t.ok(serialized.cause)
+  t.equal(serialized.cause.type, 'Error')
+  t.equal(serialized.cause.message, 'bar: abc')
+  t.match(serialized.cause.stack, /err\.test\.js:/)
+
+  t.ok(serialized.cause.cause)
+  t.equal(serialized.cause.cause.type, 'Error')
+  t.equal(serialized.cause.cause.message, 'abc')
+  t.match(serialized.cause.cause.stack, /err\.test\.js:/)
+})

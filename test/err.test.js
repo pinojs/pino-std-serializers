@@ -196,19 +196,25 @@ test('serializes aggregate errors', { skip: !global.AggregateError }, function (
 })
 
 test('serializes causes', function (t) {
-  t.plan(7)
+  t.plan(11)
 
   const bar = new Error('bar')
   bar.cause = new Error('foo')
+  bar.cause.cause = new Error('baz')
 
   const serialized = serializer(bar)
 
   t.equal(serialized.type, 'Error')
-  t.equal(serialized.message, 'bar: foo') // message serialization already walks cause-chain
+  t.equal(serialized.message, 'bar: foo: baz') // message serialization already walks cause-chain
   t.match(serialized.stack, /err\.test\.js:/)
 
   t.ok(serialized.cause)
   t.equal(serialized.cause.type, 'Error')
-  t.equal(serialized.cause.message, 'foo')
+  t.equal(serialized.cause.message, 'foo: baz')
   t.match(serialized.cause.stack, /err\.test\.js:/)
+
+  t.ok(serialized.cause.cause)
+  t.equal(serialized.cause.cause.type, 'Error')
+  t.equal(serialized.cause.cause.message, 'baz')
+  t.match(serialized.cause.cause.stack, /err\.test\.js:/)
 })

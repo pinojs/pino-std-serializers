@@ -47,7 +47,7 @@ test('serializes nested errors', function (t) {
 })
 
 test('serializes error causes', function (t) {
-  t.plan(6)
+  t.plan(7)
   const err = Error('foo')
   err.cause = Error('bar')
   err.cause.cause = Error('abc')
@@ -58,15 +58,17 @@ test('serializes error causes', function (t) {
   t.match(serialized.stack, /Error: foo/)
   t.match(serialized.stack, /Error: bar/)
   t.match(serialized.stack, /Error: abc/)
+  t.notOk(serialized.cause)
 })
 
 test('serializes error causes with VError support', function (t) {
   t.plan(6)
   // Fake VError-style setup
   const err = Error('foo: bar')
-  err.cause = () => {
+  err.foo = 'abc'
+  err.cause = function () {
     const err = Error('bar')
-    err.cause = Error('abc')
+    err.cause = Error(this.foo)
     return err
   }
   const serialized = serializer(err)
@@ -76,6 +78,16 @@ test('serializes error causes with VError support', function (t) {
   t.match(serialized.stack, /Error: foo/)
   t.match(serialized.stack, /Error: bar/)
   t.match(serialized.stack, /Error: abc/)
+})
+
+test('keeps non-error cause', function (t) {
+  t.plan(3)
+  const err = Error('foo')
+  err.cause = 'abc'
+  const serialized = serializer(err)
+  t.equal(serialized.type, 'Error')
+  t.equal(serialized.message, 'foo')
+  t.equal(serialized.cause, 'abc')
 })
 
 test('prevents infinite recursion', function (t) {
@@ -193,56 +205,4 @@ test('serializes aggregate errors', { skip: !global.AggregateError }, function (
   t.match(serialized.aggregateErrors[0].stack, /^Error: foo/)
   t.match(serialized.aggregateErrors[1].stack, /^Error: bar/)
   t.match(serialized.stack, /err\.test\.js:/)
-})
-
-test('serializes causes', function (t) {
-  t.plan(11)
-
-  const bar = new Error('bar')
-  bar.cause = new Error('foo')
-  bar.cause.cause = new Error('baz')
-
-  const serialized = serializer(bar)
-
-  t.equal(serialized.type, 'Error')
-  t.equal(serialized.message, 'bar: foo: baz') // message serialization already walks cause-chain
-  t.match(serialized.stack, /err\.test\.js:/)
-
-  t.ok(serialized.cause)
-  t.equal(serialized.cause.type, 'Error')
-  t.equal(serialized.cause.message, 'foo: baz')
-  t.match(serialized.cause.stack, /err\.test\.js:/)
-
-  t.ok(serialized.cause.cause)
-  t.equal(serialized.cause.cause.type, 'Error')
-  t.equal(serialized.cause.cause.message, 'baz')
-  t.match(serialized.cause.cause.stack, /err\.test\.js:/)
-})
-
-test('serializes causes with VError support', function (t) {
-  t.plan(11)
-
-  // Fake VError-style setup
-  const err = Error('foo: bar')
-  err.cause = () => {
-    const err = Error('bar')
-    err.cause = Error('abc')
-    return err
-  }
-
-  const serialized = serializer(err)
-
-  t.equal(serialized.type, 'Error')
-  t.equal(serialized.message, 'foo: bar: abc') // message serialization already walks cause-chain
-  t.match(serialized.stack, /err\.test\.js:/)
-
-  t.ok(serialized.cause)
-  t.equal(serialized.cause.type, 'Error')
-  t.equal(serialized.cause.message, 'bar: abc')
-  t.match(serialized.cause.stack, /err\.test\.js:/)
-
-  t.ok(serialized.cause.cause)
-  t.equal(serialized.cause.cause.type, 'Error')
-  t.equal(serialized.cause.cause.message, 'abc')
-  t.match(serialized.cause.cause.stack, /err\.test\.js:/)
 })

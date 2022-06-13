@@ -47,7 +47,7 @@ test('serializes nested errors', function (t) {
 })
 
 test('serializes error causes', function (t) {
-  t.plan(6)
+  t.plan(7)
   const err = Error('foo')
   err.cause = Error('bar')
   err.cause.cause = Error('abc')
@@ -58,15 +58,17 @@ test('serializes error causes', function (t) {
   t.match(serialized.stack, /Error: foo/)
   t.match(serialized.stack, /Error: bar/)
   t.match(serialized.stack, /Error: abc/)
+  t.notOk(serialized.cause)
 })
 
 test('serializes error causes with VError support', function (t) {
   t.plan(6)
   // Fake VError-style setup
   const err = Error('foo: bar')
-  err.cause = () => {
+  err.foo = 'abc'
+  err.cause = function () {
     const err = Error('bar')
-    err.cause = Error('abc')
+    err.cause = Error(this.foo)
     return err
   }
   const serialized = serializer(err)
@@ -76,6 +78,16 @@ test('serializes error causes with VError support', function (t) {
   t.match(serialized.stack, /Error: foo/)
   t.match(serialized.stack, /Error: bar/)
   t.match(serialized.stack, /Error: abc/)
+})
+
+test('keeps non-error cause', function (t) {
+  t.plan(3)
+  const err = Error('foo')
+  err.cause = 'abc'
+  const serialized = serializer(err)
+  t.equal(serialized.type, 'Error')
+  t.equal(serialized.message, 'foo')
+  t.equal(serialized.cause, 'abc')
 })
 
 test('prevents infinite recursion', function (t) {

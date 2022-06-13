@@ -223,16 +223,26 @@ test('serializes causes with VError support', function (t) {
   t.plan(11)
 
   // Fake VError-style setup
-  const err = Error('foo: bar')
-  err.cause = () => {
-    const err = Error('bar')
-    err.cause = Error('abc')
-    return err
+  class VError extends Error {
+    constructor (message, cause) {
+      super(message + ': ' + cause.message)
+      this._cause = cause
+    }
+
+    // Ensure `cause` references `this` (see https://github.com/pinojs/pino-std-serializers/pull/109)
+    cause () {
+      return this._cause
+    }
   }
+
+  const causeErr = Error('bar')
+  causeErr.cause = Error('abc')
+
+  const err = new VError('foo', causeErr)
 
   const serialized = serializer(err)
 
-  t.equal(serialized.type, 'Error')
+  t.equal(serialized.type, 'VError')
   t.equal(serialized.message, 'foo: bar: abc') // message serialization already walks cause-chain
   t.match(serialized.stack, /err\.test\.js:/)
 

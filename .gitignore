@@ -147,5 +147,3 @@ yarn.lock
 # 0x
 .__browserify*
 profile-*
-
-shrinkwrap.yaml

@@ -47,18 +47,23 @@ test('serializes nested errors', function (t) {
 })
 
 test('serializes error causes', function (t) {
-  t.plan(7)
-  const err = Error('foo')
-  err.cause = Error('bar')
-  err.cause.cause = Error('abc')
-  const serialized = serializer(err)
-  t.equal(serialized.type, 'Error')
-  t.equal(serialized.message, 'foo: bar: abc')
-  t.match(serialized.stack, /err\.test\.js:/)
-  t.match(serialized.stack, /Error: foo/)
-  t.match(serialized.stack, /Error: bar/)
-  t.match(serialized.stack, /Error: abc/)
-  t.notOk(serialized.cause)
+  t.plan(14)
+  for (const cause of [
+    Error('bar'),
+    { message: 'bar', stack: 'Error: bar: err.test.js:' }
+  ]) {
+    const err = Error('foo')
+    err.cause = cause
+    err.cause.cause = Error('abc')
+    const serialized = serializer(err)
+    t.equal(serialized.type, 'Error')
+    t.equal(serialized.message, 'foo: bar: abc')
+    t.match(serialized.stack, /err\.test\.js:/)
+    t.match(serialized.stack, /Error: foo/)
+    t.match(serialized.stack, /Error: bar/)
+    t.match(serialized.stack, /Error: abc/)
+    t.notOk(serialized.cause)
+  }
 })
 
 test('serializes error causes with VError support', function (t) {
@@ -161,7 +166,7 @@ test('redefined err.constructor doesnt crash serializer', function (t) {
   check(serializer(err5), 'Error')
 })
 
-test('pass through anything that is not an Error', function (t) {
+test('pass through anything that does not look like an Error', function (t) {
   t.plan(3)
 
   function check (a) {
@@ -191,18 +196,20 @@ test('can wrap err serializers', function (t) {
 })
 
 test('serializes aggregate errors', { skip: !global.AggregateError }, function (t) {
-  t.plan(8)
+  t.plan(14)
   const foo = new Error('foo')
   const bar = new Error('bar')
-  const aggregate = new AggregateError([foo, bar], 'aggregated message') // eslint-disable-line no-undef
-
-  const serialized = serializer(aggregate)
-  t.equal(serialized.type, 'AggregateError')
-  t.equal(serialized.message, 'aggregated message')
-  t.equal(serialized.aggregateErrors.length, 2)
-  t.equal(serialized.aggregateErrors[0].message, 'foo')
-  t.equal(serialized.aggregateErrors[1].message, 'bar')
-  t.match(serialized.aggregateErrors[0].stack, /^Error: foo/)
-  t.match(serialized.aggregateErrors[1].stack, /^Error: bar/)
-  t.match(serialized.stack, /err\.test\.js:/)
+  for (const aggregate of [
+    new AggregateError([foo, bar], 'aggregated message'), // eslint-disable-line no-undef
+    { errors: [foo, bar], message: 'aggregated message', stack: 'err.test.js:' }
+  ]) {
+    const serialized = serializer(aggregate)
+    t.equal(serialized.message, 'aggregated message')
+    t.equal(serialized.aggregateErrors.length, 2)
+    t.equal(serialized.aggregateErrors[0].message, 'foo')
+    t.equal(serialized.aggregateErrors[1].message, 'bar')
+    t.match(serialized.aggregateErrors[0].stack, /^Error: foo/)
+    t.match(serialized.aggregateErrors[1].stack, /^Error: bar/)
+    t.match(serialized.stack, /err\.test\.js:/)
+  }
 })

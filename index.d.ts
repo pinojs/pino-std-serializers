@@ -25,7 +25,7 @@ export interface SerializedError {
    */
   raw: Error;
   /**
-   * `cause` is never included in the log output, if you need the `cause`, use `raw.cause`
+   * `cause` is never included in the log output, if you need the `cause`, use {@link raw.cause}
    */
   cause: undefined;
   /**

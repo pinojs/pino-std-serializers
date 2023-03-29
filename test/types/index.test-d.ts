@@ -1,6 +1,7 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {
   err,
+  errWithCause,
   req,
   res,
   SerializedError,
@@ -44,6 +45,9 @@ const customResponseSerializer = (res: SerializedResponse) => {
 const fakeError = new Error('A fake error for testing');
 const serializedError: SerializedError = err(fakeError);
 const mySerializer = wrapErrorSerializer(customErrorSerializer);
+
+const fakeErrorWithCause = new Error('A fake error for testing with cause', { cause: new Error('An inner fake error') });
+const serializedErrorWithCause: SerializedError = errWithCause(fakeError);
 
 const request: IncomingMessage = {} as IncomingMessage
 const serializedRequest: SerializedRequest = req(request);

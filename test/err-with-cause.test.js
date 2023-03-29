@@ -50,8 +50,10 @@ test('serializes nested errors', function (t) {
 
 test('serializes error causes', function (t) {
   const innerErr = Error('inner')
-  const middleErr = Error('middle', { cause: innerErr })
-  const outerErr = Error('outer', { cause: middleErr })
+  const middleErr = Error('middle')
+  middleErr.cause = innerErr
+  const outerErr = Error('outer')
+  outerErr.cause = middleErr
 
   const serialized = serializer(outerErr)
 

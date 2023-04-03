@@ -22,9 +22,12 @@ Serializes an `Error` like object. Returns an object:
 
 Any other extra properties, e.g. `statusCode`, that have been attached to the
 object will also be present on the serialized object.
+
 If the error object has a [`cause`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/cause) property, the `cause`'s `message` and `stack` will be appended to the top-level `message` and `stack`. All other parameters that belong to the `error.cause` object will be omitted.
+
 Example:
-```javascript
+
+```js
 const serializer = require('pino-std-serializers').err;
 
 const innerError = new Error("inner error");
@@ -44,7 +47,6 @@ const serialized = serializer(outerError);
         at <...omitted..>
 }
  */
-```
 
 ### `exports.errWithCause(error)`
 Serializes an `Error` like object, including any `error.cause`. Returns an object:

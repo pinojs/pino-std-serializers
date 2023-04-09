@@ -16,11 +16,83 @@ Serializes an `Error` like object. Returns an object:
   raw: Error  // Non-enumerable, i.e. will not be in the output, original
               // Error object. This is available for subsequent serializers
               // to use.
+  [...any additional Enumerable property the original Error had]
 }
 ```
 
 Any other extra properties, e.g. `statusCode`, that have been attached to the
 object will also be present on the serialized object.
+
+If the error object has a [`cause`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/cause) property, the `cause`'s `message` and `stack` will be appended to the top-level `message` and `stack`. All other parameters that belong to the `error.cause` object will be omitted.
+
+Example:
+
+```js
+const serializer = require('pino-std-serializers').err;
+
+const innerError = new Error("inner error");
+innerError.isInner = true;
+const outerError = new Error("outer error", { cause: innerError });
+outerError.isInner = false;
+
+const serialized = serializer(outerError);
+/* Result:
+{
+  "type": "Error",
+  "message": "outer error: inner error",
+  "isInner": false,
+  "stack": "Error: outer error
+        at <...omitted..>
+    caused by: Error: inner error
+        at <...omitted..>
+}
+ */
+
+### `exports.errWithCause(error)`
+Serializes an `Error` like object, including any `error.cause`. Returns an object:
+
+```js
+{
+  type: 'string', // The name of the object's constructor.
+  message: 'string', // The supplied error message.
+  stack: 'string', // The stack when the error was generated.
+  cause?: Error, // If the original error had an error.cause, it will be serialized here
+  raw: Error  // Non-enumerable, i.e. will not be in the output, original
+              // Error object. This is available for subsequent serializers
+              // to use.
+  [...any additional Enumerable property the original Error had]
+}
+```
+
+Any other extra properties, e.g. `statusCode`, that have been attached to the object will also be present on the serialized object.
+
+Example:
+```javascript
+const serializer = require('pino-std-serializers').errWithCause;
+
+const innerError = new Error("inner error");
+innerError.isInner = true;
+const outerError = new Error("outer error", { cause: innerError });
+outerError.isInner = false;
+
+const serialized = serializer(outerError);
+/* Result:
+{
+  "type": "Error",
+  "message": "outer error",
+  "isInner": false,
+  "stack": "Error: outer error
+    at <...omitted..>",
+  "cause": {
+    "type": "Error",
+    "message": "inner error",
+    "isInner": true,
+    "stack": "Error: inner error
+      at <...omitted..>"
+  },
+}
+ */
+```
 
 ### `exports.mapHttpResponse(response)`
 Used internally by Pino for general response logging. Returns an object:
@@ -49,7 +121,7 @@ The default `request` serializer. Returns an object:
 
 ```js
 {
-  id: 'string', // Defaults to `undefined`, unless there is an `id` property 
+  id: 'string', // Defaults to `undefined`, unless there is an `id` property
                 // already attached to the `request` object or to the `request.info`
                 // object. Attach a synchronous function
                 // to the `request.id` that returns an identifier to have
@@ -64,7 +136,7 @@ The default `request` serializer. Returns an object:
   remotePort: Number,
   raw: Object // Non-enumerable, i.e. will not be in the output, original
               // request object. This is available for subsequent serializers
-              // to use. In cases where the `request` input already has 
+              // to use. In cases where the `request` input already has
               // a `raw` property this will replace the original `request.raw`
               // property
 }

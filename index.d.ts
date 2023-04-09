@@ -32,9 +32,15 @@ export interface SerializedError {
 }
 
 /**
- * Serializes an Error object.
+ * Serializes an Error object. Does not serialize "err.cause" fields (will append the err.cause.message to err.message
+ * and err.cause.stack to err.stack)
  */
 export function err(err: Error): SerializedError;
+
+/**
+ * Serializes an Error object, including full serialization for any err.cause fields recursively.
+ */
+export function errWithCause(err: Error): SerializedError;
 
 export interface SerializedRequest {
   /**

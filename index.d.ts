@@ -25,6 +25,10 @@ export interface SerializedError {
    */
   raw: Error;
   /**
+   * `cause` is never included in the log output, if you need the `cause`, use {@link raw.cause}
+   */
+  cause?: never;
+  /**
    * Any other extra properties that have been attached to the object will also be present on the serialized object.
    */
   [key: string]: any;

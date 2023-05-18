@@ -21,7 +21,17 @@ const customErrorSerializer = (error: SerializedError) => {
 };
 
 const customRequestSerializer = (req: SerializedRequest) => {
-  const {headers, id, method, raw, remoteAddress, remotePort, url} = req;
+  const {
+    headers,
+    id,
+    method,
+    raw,
+    remoteAddress,
+    remotePort,
+    url,
+    query,
+    params,
+  } = req;
   return {
     myOwnRequest: {
       data: `${method}-${id}-${remoteAddress}-${remotePort}-${url}`,

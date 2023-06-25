@@ -67,6 +67,9 @@ export interface SerializedRequest {
   headers: Record<string, string>;
   remoteAddress: string;
   remotePort: number;
+  params: Record<string, string>;
+  query: Record<string, string>;
+
   /**
    * Non-enumerable, i.e. will not be in the output, original request object. This is available for subsequent
    * serializers to use. In cases where the `request` input already has  a `raw` property this will

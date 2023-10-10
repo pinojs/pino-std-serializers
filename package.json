@@ -32,11 +32,11 @@
     "test-types"
   ],
   "devDependencies": {
+    "@fastify/pre-commit": "^2.0.2",
     "@types/node": "^20.1.0",
-    "pre-commit": "^1.2.2",
     "snazzy": "^9.0.0",
     "standard": "^17.0.0",
-    "tap": "^15.0.10",
+    "tap": "^16.3.9",
     "tsd": "^0.29.0",
     "typescript": "^5.0.2"
   },

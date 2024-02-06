@@ -8,8 +8,8 @@
   "scripts": {
     "lint": "standard | snazzy",
     "lint-ci": "standard",
-    "test": "tap --no-cov",
-    "test-ci": "tap --cov --no-check-coverage --coverage-report=text",
+    "test": "borp -p 'test/**/*.js'",
+    "test-ci": "borp --coverage -p 'test/**/*.js'",
     "test-types": "tsc && tsd"
   },
   "repository": {
@@ -32,13 +32,14 @@
     "test-types"
   ],
   "devDependencies": {
-    "@types/node": "^20.1.0",
+    "@matteo.collina/tspl": "^0.1.1",
+    "@types/node": "^20.11.16",
+    "borp": "^0.9.1",
     "pre-commit": "^1.2.2",
     "snazzy": "^9.0.0",
-    "standard": "^17.0.0",
-    "tap": "^15.0.10",
-    "tsd": "^0.30.0",
-    "typescript": "^5.0.2"
+    "standard": "^17.1.0",
+    "tsd": "^0.30.4",
+    "typescript": "^5.3.3"
   },
   "tsd": {
     "directory": "test/types"

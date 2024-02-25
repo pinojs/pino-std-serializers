@@ -47,6 +47,7 @@ const serialized = serializer(outerError);
         at <...omitted..>
 }
  */
+```
 
 ### `exports.errWithCause(error)`
 Serializes an `Error` like object, including any `error.cause`. Returns an object:

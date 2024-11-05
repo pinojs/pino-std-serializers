@@ -475,3 +475,85 @@ test('req.params is available', async (t) => {
 
   await p.completed
 })
+
+test('req.cookies is undefined by default', async (t) => {
+  const p = tspl(t, { plan: 1 })
+
+  const server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.after(() => server.close())
+
+  function handler (req, res) {
+    const serialized = serializers.reqSerializer(req)
+    p.strictEqual(serialized.cookies, undefined)
+    res.end()
+  }
+
+  await p.completed
+})
+
+test('req.cookies is available if present in request', async (t) => {
+  const p = tspl(t, { plan: 1 })
+
+  const server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.after(() => server.close())
+
+  function handler (req, res) {
+    req.cookies = { deviceId: '1234' }
+    const serialized = serializers.reqSerializer(req)
+    p.deepStrictEqual(serialized.cookies, { deviceId: '1234' })
+    res.end()
+  }
+
+  await p.completed
+})
+
+test('req.signedCookies is undefined by default', async (t) => {
+  const p = tspl(t, { plan: 1 })
+
+  const server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.after(() => server.close())
+
+  function handler (req, res) {
+    const serialized = serializers.reqSerializer(req)
+    p.strictEqual(serialized.signedCookies, undefined)
+    res.end()
+  }
+
+  await p.completed
+})
+
+test('req.signedCookies is available if present in request', async (t) => {
+  const p = tspl(t, { plan: 1 })
+
+  const server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.after(() => server.close())
+
+  function handler (req, res) {
+    req.signedCookies = { deviceId: '1234' }
+    const serialized = serializers.reqSerializer(req)
+    p.deepStrictEqual(serialized.signedCookies, { deviceId: '1234' })
+    res.end()
+  }
+
+  await p.completed
+})

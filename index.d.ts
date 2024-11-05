@@ -71,6 +71,12 @@ export interface SerializedRequest {
   query: Record<string, string>;
 
   /**
+   * Defaults to `undefined`, unless there is an `cookies` or `signedCookies` property already attached to the `request` object.
+   */
+  cookies: Record<string, string> | undefined;
+  signedCookies: Record<string, string> | undefined;
+
+  /**
    * Non-enumerable, i.e. will not be in the output, original request object. This is available for subsequent
    * serializers to use. In cases where the `request` input already has  a `raw` property this will
    * replace the original `request.raw` property.

@@ -75,6 +75,24 @@ test('keeps non-error cause', () => {
   assert.strictEqual(serialized.cause, 'abc')
 })
 
+test('keeps non-error cause from constructor', () => {
+  for (const cause of [
+    'string',
+    42,
+    ['an', 'array'],
+    ['a', ['nested', 'array']],
+    { an: 'object' },
+    { a: { nested: 'object' } },
+    Symbol('symbol')
+  ]) {
+    const err = Error('foo', { cause })
+    const serialized = serializer(err)
+    assert.strictEqual(serialized.type, 'Error')
+    assert.strictEqual(serialized.message, 'foo')
+    assert.strictEqual(serialized.cause, cause)
+  }
+})
+
 test('prevents infinite recursion', () => {
   const err = Error('foo')
   err.inner = err

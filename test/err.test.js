@@ -62,6 +62,25 @@ test('serializes error causes', () => {
   }
 })
 
+test('serializes non Error error cause from constructor', () => {
+  for (const cause of [
+    'string',
+    42,
+    // ['an', 'array'],
+    // ['a', ['nested', 'array']],
+    // { an: 'object' },
+    // { a: { nested: 'object' } },
+    Symbol('symbol')
+  ]) {
+    const err = Error('foo', { cause })
+    const serialized = serializer(err)
+    assert.strictEqual(serialized.type, 'Error')
+    assert.strictEqual(serialized.message, 'foo: ' + String(cause))
+    assert.match(serialized.stack, /err\.test\.js:/)
+    assert.match(serialized.stack, /Error: foo/)
+  }
+})
+
 test('serializes error causes with VError support', function (t) {
   // Fake VError-style setup
   const err = Error('foo: bar')
@@ -85,7 +104,7 @@ test('keeps non-error cause', () => {
   err.cause = 'abc'
   const serialized = serializer(err)
   assert.strictEqual(serialized.type, 'Error')
-  assert.strictEqual(serialized.message, 'foo')
+  assert.strictEqual(serialized.message, 'foo: abc')
   assert.strictEqual(serialized.cause, 'abc')
 })
 

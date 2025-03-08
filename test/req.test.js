@@ -475,3 +475,31 @@ test('req.params is available', async (t) => {
 
   await p.completed
 })
+
+test('req.headers\' certain keys are redacted', async (t) => {
+  const p = tspl(t, { plan: 3 })
+
+  const server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get({
+      ...server.address(),
+      headers: {
+        custom: 'y',
+        'x-forwarded-for': 'y'
+      }
+    }, () => {})
+  })
+
+  t.after(() => server.close())
+
+  function handler (req, res) {
+    const serialized = serializers.reqSerializer(req)
+    p.strictEqual(serialized.headers.custom, 'y')
+    p.strictEqual(serialized.headers['x-forwarded-for'], '[REDACTED]')
+    p.strictEqual(req.headers['x-forwarded-for'], 'y')
+    res.end()
+  }
+
+  await p.completed
+})

@@ -43,5 +43,8 @@
   },
   "tsd": {
     "directory": "test/types"
+  },
+  "dependencies": {
+    "fast-redact": "^3.5.0"
   }
 }

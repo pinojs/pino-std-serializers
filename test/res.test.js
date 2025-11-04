@@ -118,3 +118,27 @@ test('req.url will be obtained from input request url when input request url is 
 
   await p.completed
 })
+
+test('res.headers\' certain keys are redacted', async (t) => {
+  const p = tspl(t, { plan: 3 })
+
+  const server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.after(() => server.close())
+
+  function handler (_req, res) {
+    res.setHeader('custom', 'y')
+    res.setHeader('x-forwarded-for', 'y')
+    const serialized = serializers.resSerializer(res)
+    p.strictEqual(serialized.headers.custom, 'y')
+    p.strictEqual(serialized.headers['x-forwarded-for'], '[REDACTED]')
+    p.strictEqual(res.getHeaders()['x-forwarded-for'], 'y')
+    res.end()
+  }
+
+  await p.completed
+})

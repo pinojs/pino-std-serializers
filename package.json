@@ -33,7 +33,7 @@
   ],
   "devDependencies": {
     "@matteo.collina/tspl": "^0.2.0",
-    "@types/node": "^24.0.3",
+    "@types/node": "^25.0.2",
     "borp": "^0.21.0",
     "pre-commit": "^1.2.2",
     "snazzy": "^9.0.0",

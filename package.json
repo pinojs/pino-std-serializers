@@ -27,13 +27,7 @@
     "url": "https://github.com/pinojs/pino-std-serializers/issues"
   },
   "homepage": "https://github.com/pinojs/pino-std-serializers#readme",
-  "precommit": [
-    "lint",
-    "test",
-    "test-types"
-  ],
   "devDependencies": {
-    "@fastify/pre-commit": "^2.2.1",
     "@matteo.collina/tspl": "^0.2.0",
     "@types/node": "^25.0.3",
     "borp": "^0.21.0",

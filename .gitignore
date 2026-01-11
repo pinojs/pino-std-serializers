@@ -147,3 +147,7 @@ yarn.lock
 # 0x
 .__browserify*
 profile-*
+
+# Claude
+CLAUDE.md
+.claude/

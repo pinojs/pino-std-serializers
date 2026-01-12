@@ -58,7 +58,7 @@ export interface SerializedRequest {
    */
   method: string;
   /**
-   * Request pathname (as per req.url in core HTTP).
+   * Request pathname (as per req.url in core HTTP) or full URL for WHATWG Request.
    */
   url: string;
   /**
@@ -75,18 +75,18 @@ export interface SerializedRequest {
    * serializers to use. In cases where the `request` input already has  a `raw` property this will
    * replace the original `request.raw` property.
    */
-  raw: IncomingMessage;
+  raw: IncomingMessage | Request;
 }
 
 /**
- * Serializes a Request object.
+ * Serializes a Request object (Node.js IncomingMessage or WHATWG Fetch API Request).
  */
-export function req(req: IncomingMessage): SerializedRequest;
+export function req(req: IncomingMessage | Request): SerializedRequest;
 
 /**
  * Used internally by Pino for general request logging.
  */
-export function mapHttpRequest(req: IncomingMessage): {
+export function mapHttpRequest(req: IncomingMessage | Request): {
   req: SerializedRequest
 };
 
@@ -102,20 +102,40 @@ export interface SerializedResponse {
   /**
    * Non-enumerable, i.e. will not be in the output, original response object. This is available for subsequent serializers to use.
    */
-  raw: ServerResponse;
+  raw: ServerResponse | Response;
 }
 
 /**
- * Serializes a Response object.
+ * Serializes a Response object (Node.js ServerResponse or WHATWG Fetch API Response).
  */
-export function res(res: ServerResponse): SerializedResponse;
+export function res(res: ServerResponse | Response): SerializedResponse;
 
 /**
  * Used internally by Pino for general response logging.
  */
-export function mapHttpResponse(res: ServerResponse): {
+export function mapHttpResponse(res: ServerResponse | Response): {
   res: SerializedResponse
 };
+
+/**
+ * Serializes a Node.js IncomingMessage request object.
+ */
+export function nodeReq(req: IncomingMessage): SerializedRequest;
+
+/**
+ * Serializes a Node.js ServerResponse object.
+ */
+export function nodeRes(res: ServerResponse): SerializedResponse;
+
+/**
+ * Serializes a WHATWG Fetch API Request object.
+ */
+export function whatwgReq(req: Request): SerializedRequest;
+
+/**
+ * Serializes a WHATWG Fetch API Response object.
+ */
+export function whatwgRes(res: Response): SerializedResponse;
 
 export type CustomErrorSerializer = (err: SerializedError) => Record<string, any>;
 
@@ -133,7 +153,7 @@ export type CustomRequestSerializer = (req: SerializedRequest) => Record<string,
  * This allows custom serializers to work with the already serialized object.
  * The customSerializer accepts one parameter — the newly serialized request object — and returns the new (or updated) request object.
  */
-export function wrapRequestSerializer(customSerializer: CustomRequestSerializer): (req: IncomingMessage) => Record<string, any>;
+export function wrapRequestSerializer(customSerializer: CustomRequestSerializer): (req: IncomingMessage | Request) => Record<string, any>;
 
 export type CustomResponseSerializer = (res: SerializedResponse) => Record<string, any>;
 
@@ -142,4 +162,4 @@ export type CustomResponseSerializer = (res: SerializedResponse) => Record<strin
  * This allows custom serializers to work with the already serialized object.
  * The customSerializer accepts one parameter — the newly serialized response object — and returns the new (or updated) response object.
  */
-export function wrapResponseSerializer(customSerializer: CustomResponseSerializer): (res: ServerResponse) => Record<string, any>;
+export function wrapResponseSerializer(customSerializer: CustomResponseSerializer): (res: ServerResponse | Response) => Record<string, any>;

@@ -1,5 +1,6 @@
 'use strict'
 
+const assert = require('node:assert')
 const { tspl } = require('@matteo.collina/tspl')
 const http = require('node:http')
 const { test } = require('node:test')
@@ -470,6 +471,81 @@ test('req.params is available', async (t) => {
     req.params = '/foo/bar'
     const serialized = serializers.reqSerializer(req)
     p.strictEqual(serialized.params, '/foo/bar')
+    res.end()
+  }
+
+  await p.completed
+})
+
+test('serializes WHATWG Request via reqSerializer', () => {
+  const req = new Request('http://localhost/test', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' }
+  })
+  const serialized = serializers.reqSerializer(req)
+  assert.strictEqual(serialized.method, 'POST')
+  assert.strictEqual(serialized.url, 'http://localhost/test')
+  assert.strictEqual(serialized.headers['content-type'], 'application/json')
+})
+
+test('maps WHATWG Request', () => {
+  const req = new Request('http://localhost/test', { method: 'GET' })
+  const serialized = serializers.mapHttpRequest(req)
+  assert.ok(serialized.req)
+  assert.strictEqual(serialized.req.method, 'GET')
+})
+
+test('whatwgReqSerializer serializes Request', () => {
+  const req = new Request('http://localhost/test', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' }
+  })
+  const serialized = serializers.whatwgReqSerializer(req)
+  assert.strictEqual(serialized.method, 'POST')
+  assert.strictEqual(serialized.url, 'http://localhost/test')
+  assert.strictEqual(serialized.headers['content-type'], 'application/json')
+})
+
+test('whatwgReqSerializer raw is available', () => {
+  const req = new Request('http://localhost/test')
+  const serialized = serializers.whatwgReqSerializer(req)
+  assert.ok(serialized.raw)
+  assert.strictEqual(serialized.raw, req)
+})
+
+test('whatwgReqSerializer id defaults to undefined', () => {
+  const req = new Request('http://localhost/test')
+  const serialized = serializers.whatwgReqSerializer(req)
+  assert.strictEqual(serialized.id, undefined)
+})
+
+test('whatwgReqSerializer headers are serialized correctly', () => {
+  const req = new Request('http://localhost/test', {
+    headers: {
+      'content-type': 'application/json',
+      'x-custom-header': 'custom-value'
+    }
+  })
+  const serialized = serializers.whatwgReqSerializer(req)
+  assert.strictEqual(serialized.headers['content-type'], 'application/json')
+  assert.strictEqual(serialized.headers['x-custom-header'], 'custom-value')
+})
+
+test('nodeReqSerializer is exported', async (t) => {
+  const p = tspl(t, { plan: 2 })
+
+  const server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.after(() => server.close())
+
+  function handler (req, res) {
+    const serialized = serializers.nodeReqSerializer(req)
+    p.ok(serialized.method)
+    p.strictEqual(serialized.method, 'GET')
     res.end()
   }
 

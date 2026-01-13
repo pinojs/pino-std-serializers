@@ -1,16 +1,20 @@
-import {IncomingMessage, ServerResponse} from "http";
+import { IncomingMessage, ServerResponse } from 'http'
 import {
   err,
   errWithCause,
   req,
   res,
+  nodeReq,
+  nodeRes,
+  whatwgReq,
+  whatwgRes,
   SerializedError,
   SerializedRequest,
   wrapErrorSerializer,
   wrapRequestSerializer,
   wrapResponseSerializer,
   SerializedResponse
-} from '../../';
+} from '../../'
 
 const customErrorSerializer = (error: SerializedError) => {
   return {
@@ -68,4 +72,21 @@ const myResSerializer = wrapResponseSerializer(customResponseSerializer);
 const serializedResponse = res(response);
 
 myResSerializer(response)
+
+// WHATWG Fetch API support via generic serializers
+const whatwgRequest = new Request('http://localhost/test', { method: 'POST' })
+req(whatwgRequest) satisfies SerializedRequest
+myReqSerializer(whatwgRequest)
+
+const whatwgResponse = new Response('OK', { status: 200 })
+res(whatwgResponse) satisfies SerializedResponse
+myResSerializer(whatwgResponse)
+
+// Node.js specific serializers
+nodeReq(request) satisfies SerializedRequest
+nodeRes(response) satisfies SerializedResponse
+
+// WHATWG specific serializers
+whatwgReq(whatwgRequest) satisfies SerializedRequest
+whatwgRes(whatwgResponse) satisfies SerializedResponse
 

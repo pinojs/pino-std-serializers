@@ -118,7 +118,7 @@ Used internall by Pino for general request logging. Returns an object:
 Where `req` is the `request` as serialized by the standard request serializer.
 
 ### `exports.req(request)`
-The default `request` serializer. Returns an object:
+The default `request` serializer. Supports both Node.js `IncomingMessage` and WHATWG Fetch API `Request` objects. Returns an object:
 
 ```js
 {
@@ -129,6 +129,7 @@ The default `request` serializer. Returns an object:
                 // the value filled.
   method: 'string',
   url: 'string', // the request pathname (as per req.url in core HTTP)
+                 // or full URL for WHATWG Request
   query: 'object', // the request query (as per req.query in express or hapi)
   params: 'object', // the request params (as per req.params in express or hapi)
   headers: Object, // a reference to the `headers` object from the request
@@ -144,17 +145,30 @@ The default `request` serializer. Returns an object:
 ```
 
 ### `exports.res(response)`
-The default `response` serializer. Returns an object:
+The default `response` serializer. Supports both Node.js `ServerResponse` and WHATWG Fetch API `Response` objects. Returns an object:
 
 ```js
 {
   statusCode: Number, // Response status code, will be null before headers are flushed
+                      // (Node.js only)
   headers: Object, // The headers to be sent in the response.
   raw: Object // Non-enumerable, i.e. will not be in the output, original
               // response object. This is available for subsequent serializers
               // to use.
 }
 ```
+
+### `exports.nodeReq(request)`
+Serializes a Node.js `IncomingMessage` request object. Use this if you know the request is always a Node.js request. Returns the same shape as `exports.req()`.
+
+### `exports.nodeRes(response)`
+Serializes a Node.js `ServerResponse` object. Use this if you know the response is always a Node.js response. Returns the same shape as `exports.res()`.
+
+### `exports.whatwgReq(request)`
+Serializes a WHATWG Fetch API `Request` object. Use this for frameworks like Hono, Next.js App Router, SvelteKit, Remix, and others that use the Fetch API. Returns the same shape as `exports.req()`.
+
+### `exports.whatwgRes(response)`
+Serializes a WHATWG Fetch API `Response` object. Use this for frameworks that use the Fetch API. Returns the same shape as `exports.res()`.
 
 ### `exports.wrapErrorSerializer(customSerializer)`
 A utility method for wrapping the default error serializer. This allows

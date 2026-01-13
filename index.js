@@ -12,6 +12,10 @@ module.exports = {
   mapHttpResponse: resSerializers.mapHttpResponse,
   req: reqSerializers.reqSerializer,
   res: resSerializers.resSerializer,
+  nodeReq: reqSerializers.nodeReqSerializer,
+  nodeRes: resSerializers.nodeResSerializer,
+  whatwgReq: reqSerializers.whatwgReqSerializer,
+  whatwgRes: resSerializers.whatwgResSerializer,
 
   wrapErrorSerializer: function wrapErrorSerializer (customSerializer) {
     if (customSerializer === errSerializer) return customSerializer

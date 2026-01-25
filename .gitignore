@@ -148,9 +148,12 @@ yarn.lock
 .__browserify*
 profile-*
 
-# Claude
+# AI Assistants
 CLAUDE.md
 .claude/
+.agents
+.pi
+AGENTS.md
 
 # GitHuman
 .githuman

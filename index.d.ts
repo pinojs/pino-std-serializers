@@ -101,8 +101,11 @@ export interface SerializedResponse {
   headers: Record<string, string>;
   /**
    * Non-enumerable, i.e. will not be in the output, original response object. This is available for subsequent serializers to use.
+   *
+   * Note: At runtime, the raw response object may have a `headers` property that is not part of the
+   * standard ServerResponse type. This may be added by frameworks or middleware.
    */
-  raw: ServerResponse | Response;
+  raw: ServerResponse & { headers?: Record<string, string | string[] | undefined> } | Response;
 }
 
 /**

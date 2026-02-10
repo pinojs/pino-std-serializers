@@ -90,3 +90,37 @@ nodeRes(response) satisfies SerializedResponse
 whatwgReq(whatwgRequest) satisfies SerializedRequest
 whatwgRes(whatwgResponse) satisfies SerializedResponse
 
+// Test for issue https://github.com/pinojs/pino/issues/2368
+// The raw property should allow accessing headers which may exist at runtime
+const responseWithHeadersSerializer: (res: SerializedResponse) => Record<string, unknown> = (res) => {
+  // Only ServerResponse has statusCode property
+  if ('statusCode' in res.raw) {
+    const rawHeaders = (res.raw as ServerResponse & { headers?: Record<string, string | string[] | undefined> }).headers;
+    if (rawHeaders) {
+      return {
+        statusCode: res.raw.statusCode,
+        'content-type': rawHeaders['content-type'],
+        'content-length': rawHeaders['content-length'],
+      };
+    }
+    return { statusCode: res.raw.statusCode };
+  }
+  // Handle WHATWG Response
+  return {
+    status: (res.raw as Response).status,
+  };
+};
+
+// Test with optional chaining
+const responseWithOptionalChaining: (res: SerializedResponse) => Record<string, unknown> = (res) => {
+  if ('statusCode' in res.raw) {
+    return {
+      statusCode: res.raw.statusCode,
+      'content-type': (res.raw as ServerResponse & { headers?: Record<string, string | string[] | undefined> }).headers?.['content-type'],
+    };
+  }
+  return {
+    status: (res.raw as Response).status,
+  };
+};
+

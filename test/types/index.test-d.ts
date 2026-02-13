@@ -90,3 +90,34 @@ nodeRes(response) satisfies SerializedResponse
 whatwgReq(whatwgRequest) satisfies SerializedRequest
 whatwgRes(whatwgResponse) satisfies SerializedResponse
 
+// Test for pinojs/pino#2368 - accessing headers on raw ServerResponse
+// When using wrapResponseSerializer, res.raw.headers should be accessible
+// with proper type narrowing for ServerResponse vs WHATWG Response
+const responseHeadersSerializer = wrapResponseSerializer((res) => {
+  if ('statusCode' in res.raw) {
+    // Node.js ServerResponse
+    return {
+      statusCode: res.raw.statusCode,
+      headers: {
+        'content-type': res.raw.headers?.['content-type'],
+        'content-length': res.raw.headers?.['content-length'],
+      },
+    };
+  }
+  // WHATWG Response
+  return {
+    status: res.raw.status,
+  };
+});
+
+// Also verify that serialized response headers are accessible directly
+// without narrowing (they are always available on the serialized object)
+const responseSerializer2 = wrapResponseSerializer((res) => {
+  return {
+    statusCode: res.statusCode,
+    headers: {
+      'content-type': res.headers['content-type'],
+      'content-length': res.headers['content-length'],
+    },
+  };
+});

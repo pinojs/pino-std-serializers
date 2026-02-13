@@ -4,7 +4,7 @@
 // TypeScript Version: 2.7
 
 /// <reference types="node" />
-import { IncomingMessage, ServerResponse } from 'http';
+import { IncomingMessage, ServerResponse, OutgoingHttpHeaders } from 'http';
 
 export interface SerializedError {
   /**
@@ -98,11 +98,13 @@ export interface SerializedResponse {
   /**
    * The headers to be sent in the response.
    */
-  headers: Record<string, string>;
+  headers: OutgoingHttpHeaders;
   /**
    * Non-enumerable, i.e. will not be in the output, original response object. This is available for subsequent serializers to use.
+   * When the raw object is a Node.js ServerResponse, a `headers` property may be present at runtime
+   * (e.g. when using frameworks like Express).
    */
-  raw: ServerResponse | Response;
+  raw: (ServerResponse & { headers?: OutgoingHttpHeaders }) | Response;
 }
 
 /**

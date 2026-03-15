@@ -6,6 +6,18 @@
 /// <reference types="node" />
 import { IncomingMessage, ServerResponse, OutgoingHttpHeaders } from 'http';
 
+/**
+ * An object that looks like an Error. The serializers accept any object
+ * with a `message` string property, matching the runtime `isErrorLike` check.
+ */
+export interface ErrorLike {
+  message: string;
+  stack?: string;
+  name?: string;
+  cause?: unknown;
+  [key: string]: any;
+}
+
 export interface SerializedError {
   /**
    * The name of the object's constructor.
@@ -23,7 +35,7 @@ export interface SerializedError {
    * Non-enumerable. The original Error object. This will not be included in the logged output.
    * This is available for subsequent serializers to use.
    */
-  raw: Error;
+  raw: Error | ErrorLike;
   /**
    * `cause` is never included in the log output, if you need the `cause`, use {@link raw.cause}
    */
@@ -36,15 +48,17 @@ export interface SerializedError {
 }
 
 /**
- * Serializes an Error object. Does not serialize "err.cause" fields (will append the err.cause.message to err.message
- * and err.cause.stack to err.stack)
+ * Serializes an Error or Error-like object. Does not serialize "err.cause" fields
+ * (will append the err.cause.message to err.message and err.cause.stack to err.stack).
+ * Accepts any object with a `message` string property.
  */
-export function err(err: Error): SerializedError;
+export function err(err: Error | ErrorLike): SerializedError;
 
 /**
- * Serializes an Error object, including full serialization for any err.cause fields recursively.
+ * Serializes an Error or Error-like object, including full serialization for any
+ * err.cause fields recursively. Accepts any object with a `message` string property.
  */
-export function errWithCause(err: Error): SerializedError;
+export function errWithCause(err: Error | ErrorLike): SerializedError;
 
 export interface SerializedRequest {
   /**
@@ -146,7 +160,7 @@ export type CustomErrorSerializer = (err: SerializedError) => Record<string, any
  * This allows custom serializers to work with the already serialized object.
  * The customSerializer accepts one parameter — the newly serialized error object — and returns the new (or updated) error object.
  */
-export function wrapErrorSerializer(customSerializer: CustomErrorSerializer): (err: Error) => Record<string, any>;
+export function wrapErrorSerializer(customSerializer: CustomErrorSerializer): (err: Error | ErrorLike) => Record<string, any>;
 
 export type CustomRequestSerializer = (req: SerializedRequest) => Record<string, any>;
 

@@ -198,3 +198,111 @@ test('serializes aggregate errors', { skip: !global.AggregateError }, () => {
     assert.match(serialized.stack, /err\.test\.js:/)
   }
 })
+
+test('uses toJSON() from class prototype', () => {
+  class MyError extends Error {
+    constructor (message) {
+      super(message)
+      this.name = 'MyError'
+      this.largeData = { data: 'x'.repeat(10000) }
+    }
+
+    toJSON () {
+      return { message: this.message, name: this.name }
+    }
+  }
+
+  const err = new MyError('test')
+  const serialized = serializer(err)
+
+  // toJSON() should be respected, so largeData should not be present
+  assert.ok(!('largeData' in serialized))
+  assert.strictEqual(serialized.message, 'test')
+  assert.strictEqual(serialized.name, 'MyError')
+  assert.ok(serialized.stack) // stack should still be added by serializer
+  assert.strictEqual(serialized.type, 'MyError') // type should be added
+  assert.strictEqual(serialized.raw, err) // raw should be present
+})
+
+test('uses toJSON() with custom type when toJSON returns partial data', () => {
+  class MyError extends Error {
+    constructor (message) {
+      super(message)
+      this.name = 'MyError'
+      this.customField = 'custom'
+    }
+
+    toJSON () {
+      return { message: this.message } // doesn't include type
+    }
+  }
+
+  const err = new MyError('test')
+  const serialized = serializer(err)
+
+  // type should be added by serializer if not present in toJSON output
+  assert.strictEqual(serialized.type, 'MyError')
+  assert.strictEqual(serialized.message, 'test')
+  assert.ok(serialized.stack)
+})
+
+test('uses toJSON() from own property (legacy behavior)', () => {
+  const err = Error('test')
+  err.customField = 'value'
+  err.toJSON = function () {
+    return { message: this.message, customField: this.customField }
+  }
+
+  const serialized = serializer(err)
+
+  assert.strictEqual(serialized.message, 'test')
+  assert.strictEqual(serialized.customField, 'value')
+  assert.ok(serialized.stack) // stack should still be added
+  assert.strictEqual(serialized.type, 'Error') // type should be added
+})
+
+test('uses toJSON() with error causes', () => {
+  class MyError extends Error {
+    constructor (message, cause) {
+      super(message, { cause })
+      this.name = 'MyError'
+      this.cause = cause
+    }
+
+    toJSON () {
+      return { message: this.message, name: this.name }
+    }
+  }
+
+  const cause = new Error('cause')
+  const err = new MyError('test', cause)
+  const serialized = serializer(err)
+
+  // toJSON() should be used, cause message should be included in message via messageWithCauses
+  assert.ok(!('cause' in serialized))
+  assert.match(serialized.message, /test/)
+  assert.strictEqual(serialized.name, 'MyError')
+})
+
+test('uses toJSON() - custom fields not added if not in toJSON output', () => {
+  class MyError extends Error {
+    constructor (message) {
+      super(message)
+      this.name = 'MyError'
+      this.customField = 'value'
+    }
+
+    toJSON () {
+      return { message: 'overridden' } // intentionally excludes customField
+    }
+  }
+
+  const err = new MyError('test')
+  const serialized = serializer(err)
+
+  // toJSON() controls serialization - customField should NOT be added
+  assert.strictEqual(serialized.message, 'overridden')
+  assert.ok(!('customField' in serialized)) // intentionally excluded
+  assert.ok(serialized.stack) // stack should still be added
+  assert.strictEqual(serialized.type, 'MyError') // type should be added
+})

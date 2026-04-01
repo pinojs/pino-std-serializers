@@ -8,6 +8,7 @@ import {
   nodeRes,
   whatwgReq,
   whatwgRes,
+  ErrorLike,
   SerializedError,
   SerializedRequest,
   wrapErrorSerializer,
@@ -62,6 +63,17 @@ const mySerializer = wrapErrorSerializer(customErrorSerializer);
 
 const fakeErrorWithCause = new Error('A fake error for testing with cause', { cause: new Error('An inner fake error') });
 const serializedErrorWithCause: SerializedError = errWithCause(fakeError);
+
+// Error-like objects (not instances of Error) should be accepted
+const errorLikeObj: ErrorLike = { message: 'custom error', stack: 'at foo.js:1:1' }
+const serializedErrorLike: SerializedError = err(errorLikeObj)
+const serializedErrorLikeWithCause: SerializedError = errWithCause(errorLikeObj)
+const wrappedWithErrorLike = mySerializer(errorLikeObj)
+
+// Minimal error-like object (only message required)
+const minimalErrorLike = { message: 'just a message' }
+err(minimalErrorLike) satisfies SerializedError
+errWithCause(minimalErrorLike) satisfies SerializedError
 
 const request: IncomingMessage = {} as IncomingMessage
 const serializedRequest: SerializedRequest = req(request);

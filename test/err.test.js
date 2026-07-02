@@ -284,6 +284,25 @@ test('uses toJSON() with error causes', () => {
   assert.strictEqual(serialized.name, 'MyError')
 })
 
+test('serializes SuppressedError error and suppressed', { skip: !global.SuppressedError }, () => {
+  const error = new Error('the operation failed')
+  const suppressed = new Error('disposal also failed')
+  const err = new global.SuppressedError(error, suppressed, 'an error was suppressed during disposal')
+
+  const serialized = serializer(err)
+
+  assert.strictEqual(serialized.type, 'SuppressedError')
+  assert.strictEqual(serialized.message, 'an error was suppressed during disposal')
+
+  assert.strictEqual(serialized.error.type, 'Error')
+  assert.strictEqual(serialized.error.message, 'the operation failed')
+  assert.match(serialized.error.stack, /Error: the operation failed/)
+
+  assert.strictEqual(serialized.suppressed.type, 'Error')
+  assert.strictEqual(serialized.suppressed.message, 'disposal also failed')
+  assert.match(serialized.suppressed.stack, /Error: disposal also failed/)
+})
+
 test('uses toJSON() - custom fields not added if not in toJSON output', () => {
   class MyError extends Error {
     constructor (message) {

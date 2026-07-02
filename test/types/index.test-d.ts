@@ -64,6 +64,12 @@ const mySerializer = wrapErrorSerializer(customErrorSerializer);
 const fakeErrorWithCause = new Error('A fake error for testing with cause', { cause: new Error('An inner fake error') });
 const serializedErrorWithCause: SerializedError = errWithCause(fakeError);
 
+// SuppressedError exposes serialized `error` and `suppressed` properties
+const suppressedError = new SuppressedError(new Error('error'), new Error('suppressed'), 'message');
+const serializedSuppressedError: SerializedError = err(suppressedError);
+serializedSuppressedError.error satisfies SerializedError | undefined;
+serializedSuppressedError.suppressed satisfies SerializedError | undefined;
+
 // Error-like objects (not instances of Error) should be accepted
 const errorLikeObj: ErrorLike = { message: 'custom error', stack: 'at foo.js:1:1' }
 const serializedErrorLike: SerializedError = err(errorLikeObj)

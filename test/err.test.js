@@ -124,6 +124,14 @@ test('err.raw is available', () => {
   assert.strictEqual(serialized.raw, err)
 })
 
+test('err.raw is non-enumerable and omitted from JSON', () => {
+  const err = Error('foo')
+  const serialized = serializer(err)
+  assert.strictEqual(serialized.raw, err)
+  assert.strictEqual(Object.prototype.propertyIsEnumerable.call(serialized, 'raw'), false)
+  assert.ok(!Object.hasOwn(JSON.parse(JSON.stringify(serialized)), 'raw'))
+})
+
 test('redefined err.constructor doesnt crash serializer', () => {
   function check (a, name) {
     assert.strictEqual(a.type, name)
@@ -222,6 +230,8 @@ test('uses toJSON() from class prototype', () => {
   assert.ok(serialized.stack) // stack should still be added by serializer
   assert.strictEqual(serialized.type, 'MyError') // type should be added
   assert.strictEqual(serialized.raw, err) // raw should be present
+  assert.strictEqual(Object.prototype.propertyIsEnumerable.call(serialized, 'raw'), false)
+  assert.ok(!Object.hasOwn(JSON.parse(JSON.stringify(serialized)), 'raw'))
 })
 
 test('uses toJSON() with custom type when toJSON returns partial data', () => {

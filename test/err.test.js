@@ -118,6 +118,36 @@ test('cleans up infinite recursion tracking', () => {
   assert.ok(!serialized.inner.inner)
 })
 
+test('serializes non-extensible errors', () => {
+  for (const err of [
+    Object.freeze(Error('foo')),
+    Object.seal(Error('foo')),
+    Object.preventExtensions(Error('foo'))
+  ]) {
+    const serialized = serializer(err)
+    assert.strictEqual(serialized.type, 'Error')
+    assert.strictEqual(serialized.message, 'foo')
+    assert.match(serialized.stack, /err\.test\.js:/)
+  }
+})
+
+test('prevents infinite recursion on non-extensible errors', () => {
+  const err = Error('foo')
+  err.inner = err
+  Object.freeze(err)
+
+  const serialized = serializer(err)
+  assert.strictEqual(serialized.type, 'Error')
+  assert.strictEqual(serialized.message, 'foo')
+  assert.ok(!serialized.inner)
+})
+
+test('does not add properties to the serialized error', () => {
+  const err = Error('foo')
+  serializer(err)
+  assert.deepStrictEqual(Object.getOwnPropertySymbols(err), [])
+})
+
 test('err.raw is available', () => {
   const err = Error('foo')
   const serialized = serializer(err)

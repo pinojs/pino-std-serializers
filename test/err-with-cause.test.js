@@ -66,13 +66,43 @@ test('serializes error causes', () => {
   assert.match(serialized.cause.cause.stack, /err-with-cause\.test\.js:/)
 })
 
+test('keeps error cause', () => {
+  const table = [
+    [Error('bar'), 'bar'],
+    [{ message: 'baz' }, 'baz'],
+  ]
+
+  for (const [cause, expectedMessage] of table) {
+    {
+      const err = Error('foo', { cause })
+      const serialized = serializer(err)
+      assert.strictEqual(serialized.cause.message, expectedMessage)
+    }
+    {
+      const err = Error('foo')
+      err.cause = cause
+      const serialized = serializer(err)
+      assert.strictEqual(serialized.cause.message, expectedMessage)
+    }
+  }
+})
+
 test('keeps non-error cause', () => {
-  const err = Error('foo')
-  err.cause = 'abc'
-  const serialized = serializer(err)
-  assert.strictEqual(serialized.type, 'Error')
-  assert.strictEqual(serialized.message, 'foo')
-  assert.strictEqual(serialized.cause, 'abc')
+  {
+    const err = Error('foo')
+    err.cause = 'abc'
+    const serialized = serializer(err)
+    assert.strictEqual(serialized.type, 'Error')
+    assert.strictEqual(serialized.message, 'foo')
+    assert.strictEqual(serialized.cause, 'abc')
+  }
+  {
+    const err = Error('foo', { cause: 'abc' })
+    const serialized = serializer(err)
+    assert.strictEqual(serialized.type, 'Error')
+    assert.strictEqual(serialized.message, 'foo')
+    assert.strictEqual(serialized.cause, 'abc')
+  }
 })
 
 test('prevents infinite recursion', () => {

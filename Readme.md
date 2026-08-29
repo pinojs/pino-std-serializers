@@ -57,7 +57,7 @@ Serializes an `Error` like object, including any `error.cause`. Returns an objec
   type: 'string', // The name of the object's constructor.
   message: 'string', // The supplied error message.
   stack: 'string', // The stack when the error was generated.
-  cause?: Error, // If the original error had an error.cause, it will be serialized here
+  cause?: SerializedError, // Recursively serialized error.cause when the cause is Error-like
   raw: Error  // Non-enumerable, i.e. will not be in the output, original
               // Error object. This is available for subsequent serializers
               // to use.

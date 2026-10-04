@@ -41,6 +41,20 @@ for (const [name, serialize] of [['err', err], ['errWithCause', errWithCause]]) 
     assert.equal(result.suppressed.suppressed.message, 'first disposal')
   })
 
+  test(`${name} uses its own cause handling for suppressed errors`, () => {
+    const cause = new Error('root cause')
+    const error = new Error('operation', { cause })
+    const result = serialize(new Suppressed(error, new Error('disposal'), 'cleanup'))
+
+    if (name === 'err') {
+      assert.equal(result.error.message, 'operation: root cause')
+      assert.equal(result.error.cause, undefined)
+    } else {
+      assert.equal(result.error.message, 'operation')
+      assert.equal(result.error.cause.message, cause.message)
+    }
+  })
+
   test(`${name} preserves non-error suppressed values`, () => {
     const result = serialize(new Suppressed('operation failed', null, 'cleanup'))
 

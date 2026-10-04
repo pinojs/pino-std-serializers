@@ -23,6 +23,18 @@ test('serializes Error objects with extra properties', () => {
   assert.match(serialized.stack, /err\.test\.js:/)
 })
 
+test('does not serialize inherited enumerable properties', () => {
+  class ProtoError extends Error {}
+  ProtoError.prototype.protoValue = 'proto'
+
+  const err = new ProtoError('foo')
+  err.ownValue = 'own'
+
+  const serialized = serializer(err)
+  assert.strictEqual(serialized.ownValue, 'own')
+  assert.ok(!Object.prototype.hasOwnProperty.call(serialized, 'protoValue'))
+})
+
 test('serializes Error objects with subclass "type"', () => {
   class MyError extends Error {}
   const err = new MyError('foo')

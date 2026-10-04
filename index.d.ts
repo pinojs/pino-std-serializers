@@ -41,6 +41,14 @@ export interface SerializedError {
    */
   cause?: never;
   /**
+   * The serialized `error` property of a `SuppressedError`, when present.
+   */
+  error?: unknown;
+  /**
+   * The serialized `suppressed` property of a `SuppressedError`, when present.
+   */
+  suppressed?: unknown;
+  /**
    * Any other extra properties that have been attached to the object will also be present on the serialized object.
    */
   [key: string]: any;

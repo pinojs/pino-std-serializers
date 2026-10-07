@@ -48,6 +48,18 @@ export interface SerializedError {
 }
 
 /**
+ * Serialized error produced by {@link errWithCause}. Unlike {@link SerializedError},
+ * Error-like `cause` values are serialized recursively onto this object.
+ */
+export interface SerializedErrorWithCause extends Omit<SerializedError, 'cause'> {
+  /**
+   * Recursively serialized `error.cause` when the cause is Error-like.
+   * Non-error causes are copied through unchanged.
+   */
+  cause?: SerializedErrorWithCause;
+}
+
+/**
  * Serializes an Error or Error-like object. Does not serialize "err.cause" fields
  * (will append the err.cause.message to err.message and err.cause.stack to err.stack).
  * Accepts any object with a `message` string property.
@@ -58,7 +70,7 @@ export function err(err: Error | ErrorLike): SerializedError;
  * Serializes an Error or Error-like object, including full serialization for any
  * err.cause fields recursively. Accepts any object with a `message` string property.
  */
-export function errWithCause(err: Error | ErrorLike): SerializedError;
+export function errWithCause(err: Error | ErrorLike): SerializedErrorWithCause;
 
 export interface SerializedRequest {
   /**

@@ -316,3 +316,33 @@ test('uses toJSON() - custom fields not added if not in toJSON output', () => {
   assert.ok(serialized.stack) // stack should still be added
   assert.strictEqual(serialized.type, 'MyError') // type should be added
 })
+
+test('handles frozen toJSON results without mutating them', () => {
+  const value = Object.freeze({ code: 'E_TIMEOUT' })
+  const err = new Error('timed out')
+  err.toJSON = () => value
+
+  const serialized = serializer(err)
+
+  assert.strictEqual(serialized.code, 'E_TIMEOUT')
+  assert.strictEqual(serialized.type, 'Error')
+  assert.strictEqual(serialized.message, 'timed out')
+  assert.match(serialized.stack, /Error: timed out/)
+  assert.strictEqual(serialized.raw, err)
+  assert.deepStrictEqual(value, { code: 'E_TIMEOUT' })
+  assert.ok(!Object.hasOwn(JSON.parse(JSON.stringify(serialized)), 'raw'))
+})
+
+test('does not mutate objects returned by toJSON', () => {
+  const value = { message: 'overridden', code: 'E_SHARED' }
+  const err = new Error('original')
+  err.toJSON = () => value
+
+  const serialized = serializer(err)
+
+  assert.notStrictEqual(serialized, value)
+  assert.strictEqual(serialized.message, 'overridden')
+  assert.strictEqual(serialized.type, 'Error')
+  assert.strictEqual(serialized.code, 'E_SHARED')
+  assert.deepStrictEqual(value, { message: 'overridden', code: 'E_SHARED' })
+})

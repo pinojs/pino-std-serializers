@@ -9,8 +9,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "lint-ci": "eslint --max-warnings=0 .",
-    "test": "borp -p 'test/**/*.js'",
-    "test-ci": "borp --coverage -p 'test/**/*.js'",
+    "test": "borp -p \"test/**/*.js\"",
+    "test-ci": "borp --coverage -p \"test/**/*.js\"",
     "test-types": "tsc && tsd"
   },
   "repository": {

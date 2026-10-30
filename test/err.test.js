@@ -207,6 +207,47 @@ test('serializes aggregate errors', { skip: !global.AggregateError }, () => {
   }
 })
 
+test('serializes aggregate errors that contain themselves', { skip: !global.AggregateError }, () => {
+  const foo = new Error('foo')
+  const aggregate = new AggregateError([foo], 'aggregated message')
+  aggregate.errors.push(aggregate)
+
+  const serialized = serializer(aggregate)
+  assert.strictEqual(serialized.message, 'aggregated message')
+  assert.strictEqual(serialized.aggregateErrors.length, 1)
+  assert.strictEqual(serialized.aggregateErrors[0].message, 'foo')
+})
+
+test('serializes aggregate errors that contain each other', { skip: !global.AggregateError }, () => {
+  const a = new AggregateError([], 'a')
+  const b = new AggregateError([a], 'b')
+  a.errors.push(b)
+
+  const serialized = serializer(a)
+  assert.strictEqual(serialized.aggregateErrors.length, 1)
+  assert.strictEqual(serialized.aggregateErrors[0].message, 'b')
+  assert.strictEqual(serialized.aggregateErrors[0].aggregateErrors.length, 0)
+})
+
+test('serializes aggregate errors with toJSON() that contain themselves', { skip: !global.AggregateError }, () => {
+  class MyAggregateError extends AggregateError {
+    toJSON () {
+      return { message: this.message }
+    }
+  }
+  const aggregate = new MyAggregateError([new Error('foo')], 'aggregated message')
+  aggregate.errors.push(aggregate)
+
+  const serialized = serializer(aggregate)
+  assert.strictEqual(serialized.aggregateErrors.length, 1)
+  assert.strictEqual(serialized.aggregateErrors[0].message, 'foo')
+
+  Object.freeze(aggregate)
+  const frozen = serializer(aggregate)
+  assert.strictEqual(frozen.aggregateErrors.length, 1)
+  assert.strictEqual(frozen.aggregateErrors[0].message, 'foo')
+})
+
 test('uses toJSON() from class prototype', () => {
   class MyError extends Error {
     constructor (message) {

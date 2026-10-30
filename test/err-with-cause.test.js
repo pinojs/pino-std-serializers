@@ -185,3 +185,25 @@ test('serializes aggregate errors', { skip: !global.AggregateError }, () => {
     assert.match(serialized.stack, /err-with-cause\.test\.js:/)
   }
 })
+
+test('serializes aggregate errors that contain themselves', { skip: !global.AggregateError }, () => {
+  const foo = new Error('foo')
+  const aggregate = new AggregateError([foo], 'aggregated message')
+  aggregate.errors.push(aggregate)
+
+  const serialized = serializer(aggregate)
+  assert.strictEqual(serialized.message, 'aggregated message')
+  assert.strictEqual(serialized.aggregateErrors.length, 1)
+  assert.strictEqual(serialized.aggregateErrors[0].message, 'foo')
+})
+
+test('serializes aggregate errors that contain each other', { skip: !global.AggregateError }, () => {
+  const a = new AggregateError([], 'a')
+  const b = new AggregateError([a], 'b')
+  a.errors.push(b)
+
+  const serialized = serializer(a)
+  assert.strictEqual(serialized.aggregateErrors.length, 1)
+  assert.strictEqual(serialized.aggregateErrors[0].message, 'b')
+  assert.strictEqual(serialized.aggregateErrors[0].aggregateErrors.length, 0)
+})
